@@ -1,11 +1,15 @@
 import { Holistic } from "@mediapipe/holistic";
 import { useEffect, useRef, useState } from "react";
 import { ControlPanel, FPS, SourcePicker } from "@mediapipe/control_utils";
-import { slider, toggle, text } from "./control-panel/control-factory";
+import { slider, toggle, text } from "../utils/control-factory";
 import { canvasDimensions } from "../utils/dimensions";
-import { Spinner } from "./Spinner";
+import { Spinner } from "./ui/Spinner";
 import { drawOnCanvas } from "../utils/canvas-utils";
 import { config, initialConfig } from "../utils/holistic-utils";
+import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils/posture-utils";
+
+import { AlertC, AlertMessages } from "./ui/Alert";
+import { DropdownPosteriorView } from "./ui/DropdownPosteriorView";
 
 export const PoseAnalysis = () => {
   const effectRan = useRef(false); // nullify first useEffect because of version 18.0.0
@@ -14,8 +18,19 @@ export const PoseAnalysis = () => {
   const controlsElement = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState(true);
+  const [postureView, setPostureView] = useState(PostureView.LATERAL);
+  const [isLateralPositionCorrect, setIsLateralPosition] = useState(false);
+  const [areLandmarksVisible, setAreLandmarksVisible] = useState(true);
+
+  // const [postureViewMessage, setPostureViewMessage] = useState("");
 
   let activeEffect: any = "mask";
+  let goodFrames = 0;
+  let badFrames = 0;
+
+  const sendWarning = (x: string) => {
+    alert(x);
+  };
 
   const onResults = (
     results: any,
@@ -26,7 +41,14 @@ export const PoseAnalysis = () => {
   ) => {
     fpsControl.tick(); // Update the frame rate.
     drawOnCanvas(results, canvasCtx, canvasElement, activeEffect);
+    postureView === PostureView.LATERAL
+      ? checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosition, setAreLandmarksVisible)
+      : checkAnteriorPosture();
   };
+
+  useEffect(() => {
+    console.log(postureView);
+  }, [postureView]);
 
   useEffect(() => {
     if (effectRan.current == true) {
@@ -95,6 +117,12 @@ export const PoseAnalysis = () => {
           </canvas>
         </div>
         <Spinner loading={loading}></Spinner>
+        <div className="card">
+          <p className="card-title">Posture View</p>
+          <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
+          {isLateralPositionCorrect ? <></> : <AlertC message={AlertMessages.LATERAL_WRONG}></AlertC>}
+          {areLandmarksVisible ? <></> : <AlertC message={AlertMessages.LANDMARKS_NOT_VISIBLE}></AlertC>}
+        </div>
       </div>
       <div ref={controlsElement} className="control-panel"></div>
     </div>
