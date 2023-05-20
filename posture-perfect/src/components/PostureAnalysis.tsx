@@ -12,28 +12,9 @@ import { AlertC, AlertMessages } from "./ui/Alert";
 import { DropdownPosteriorView } from "./ui/DropdownPosteriorView";
 
 import sound from "../audio/stand_straight.mp3";
-import { ErrorMessage, Field, Form, Formik } from "formik";
 import { NotificationsForm } from "./form/NotificationsForm";
-
-function sendNotification(message: string) {
-  // Check if the browser supports notifications
-  if (!("Notification" in window)) {
-    console.log("This browser does not support system notifications");
-  }
-  // Let's check whether notification permissions have already been granted
-  else if (Notification.permission === "granted") {
-    var notification = new Notification(message);
-  }
-  // Otherwise, we need to ask the user for permission
-  else if (Notification.permission !== "denied") {
-    Notification.requestPermission(function (permission) {
-      // If the user accepts, let's create a notification
-      if (permission === "granted") {
-        var notification = new Notification(message);
-      }
-    });
-  }
-}
+import { NotificationManager, NotificationValues } from "./NotificationManager";
+import { MINUTE_TO_SECONDS } from "./form/dropdowns/TimeField";
 
 const humpAlert = () => {
   // sendNotification("alert!");
@@ -52,8 +33,20 @@ export const PoseAnalysis = () => {
   const [areLandmarksVisible, setAreLandmarksVisible] = useState(true);
 
   const soundPlayed = useRef(false);
-
   let activeEffect: any = "mask";
+
+  // notifications
+  const initialValues: NotificationValues = {
+    timeValueAlert: 15,
+    timeUnitAlert: 1,
+    timeValueBreak: 30,
+    timeUnitBreak: +MINUTE_TO_SECONDS,
+    timeValueWater: 30,
+    timeUnitWater: +MINUTE_TO_SECONDS,
+  };
+  const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialValues);
+
+  // posture score
   let goodFrames = 0;
   let badFrames = 0;
 
@@ -144,10 +137,6 @@ export const PoseAnalysis = () => {
       effectRan.current = true;
     };
   }, []);
-  interface MyFormValues {
-    firstName: string;
-  }
-  const initialValues: MyFormValues = { firstName: "" };
 
   return (
     <div>
@@ -167,7 +156,8 @@ export const PoseAnalysis = () => {
         </div>
 
         <div className="card-bottom">
-          <NotificationsForm></NotificationsForm>
+          <NotificationsForm initialValues={initialValues} handleFormSubmit={setNotificationValues}></NotificationsForm>
+          <NotificationManager notificationValues={notificationValues} />
         </div>
       </div>
       <div ref={controlsElement} className="control-panel"></div>

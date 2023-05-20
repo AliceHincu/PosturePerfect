@@ -1,31 +1,28 @@
 import { Formik, Form } from "formik";
 import { AlertLabel, BreakTimeLabel, WaterLabel } from "./labels/Labels";
-import { MINUTE_TO_SECONDS, SECOND, TimeField } from "./dropdowns/TimeField";
+import { TimeField } from "./dropdowns/TimeField";
 import { createTimeFieldValidationSchema } from "./dropdowns/TimeField";
 import "./NotificationsForm.css";
+import { NotificationValues } from "../NotificationManager";
 
-export const NotificationsForm = () => {
+interface NotificationsFormProps {
+  initialValues: NotificationValues;
+  handleFormSubmit: (values: NotificationValues) => void;
+}
+
+/**
+ * Form to set notifications' intervals' details.
+ * @param param0
+ * @returns
+ */
+export const NotificationsForm = ({ initialValues, handleFormSubmit }: NotificationsFormProps) => {
   return (
     <Formik
-      initialValues={{
-        timeValueAlert: 15,
-        timeUnitAlert: SECOND,
-        timeValueBreak: 30,
-        timeUnitBreak: MINUTE_TO_SECONDS,
-        timeValueWater: 30,
-        timeUnitWater: MINUTE_TO_SECONDS,
-      }}
+      initialValues={initialValues}
       validationSchema={createTimeFieldValidationSchema("timeValueAlert", "timeUnitAlert")
         .concat(createTimeFieldValidationSchema("timeValueBreak", "timeUnitBreak"))
         .concat(createTimeFieldValidationSchema("timeValueWater", "timeUnitWater"))}
-      onSubmit={
-        //     async (values) => {
-        //     console.log("here");
-        //     await new Promise((r) => setTimeout(r, 500));
-        //     alert(JSON.stringify(values, null, 2));
-        //   }
-        (values) => console.log(values)
-      }
+      onSubmit={(values) => handleFormSubmit(values)}
     >
       <Form>
         <div className="form-content">

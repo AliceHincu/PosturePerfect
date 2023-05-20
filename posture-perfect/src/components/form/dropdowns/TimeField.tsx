@@ -54,7 +54,7 @@ export const createTimeFieldValidationSchema = (timeValueName: string, timeUnitN
     [timeValueName]: Yup.number()
       .when(timeUnitName, {
         is: SECOND, // seconds
-        then: (schema) => schema.min(10, "Minimum 10 seconds").max(59, "Maximum 59 seconds"),
+        then: (schema) => schema.min(30, "Minimum 30 seconds").max(59, "Maximum 59 seconds"),
       })
       .when(timeUnitName, {
         is: MINUTE_TO_SECONDS, // minutes
