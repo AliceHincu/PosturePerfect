@@ -11,6 +11,35 @@ import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils
 import { AlertC, AlertMessages } from "./ui/Alert";
 import { DropdownPosteriorView } from "./ui/DropdownPosteriorView";
 
+import sound from "../audio/stand_straight.mp3";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { NotificationsForm } from "./form/NotificationsForm";
+
+function sendNotification(message: string) {
+  // Check if the browser supports notifications
+  if (!("Notification" in window)) {
+    console.log("This browser does not support system notifications");
+  }
+  // Let's check whether notification permissions have already been granted
+  else if (Notification.permission === "granted") {
+    var notification = new Notification(message);
+  }
+  // Otherwise, we need to ask the user for permission
+  else if (Notification.permission !== "denied") {
+    Notification.requestPermission(function (permission) {
+      // If the user accepts, let's create a notification
+      if (permission === "granted") {
+        var notification = new Notification(message);
+      }
+    });
+  }
+}
+
+const humpAlert = () => {
+  // sendNotification("alert!");
+  // new Audio(sound).play();
+};
+
 export const PoseAnalysis = () => {
   const effectRan = useRef(false); // nullify first useEffect because of version 18.0.0
   const videoElement = useRef<HTMLVideoElement>(null);
@@ -22,14 +51,19 @@ export const PoseAnalysis = () => {
   const [isLateralPositionCorrect, setIsLateralPosition] = useState(false);
   const [areLandmarksVisible, setAreLandmarksVisible] = useState(true);
 
-  // const [postureViewMessage, setPostureViewMessage] = useState("");
+  const soundPlayed = useRef(false);
 
   let activeEffect: any = "mask";
   let goodFrames = 0;
   let badFrames = 0;
 
-  const sendWarning = (x: string) => {
-    alert(x);
+  const handleBadPosture = () => {
+    if (soundPlayed.current) return;
+    humpAlert();
+    soundPlayed.current = true;
+    setTimeout(() => {
+      soundPlayed.current = false;
+    }, 5000);
   };
 
   const onResults = (
@@ -41,9 +75,13 @@ export const PoseAnalysis = () => {
   ) => {
     fpsControl.tick(); // Update the frame rate.
     drawOnCanvas(results, canvasCtx, canvasElement, activeEffect);
-    postureView === PostureView.LATERAL
-      ? checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosition, setAreLandmarksVisible)
-      : checkAnteriorPosture();
+    if (postureView === PostureView.LATERAL) {
+      if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosition, setAreLandmarksVisible)) {
+        handleBadPosture();
+      }
+    } else {
+      checkAnteriorPosture();
+    }
   };
 
   useEffect(() => {
@@ -81,7 +119,7 @@ export const PoseAnalysis = () => {
                     canvasElement.current.width = width;
                     canvasElement.current.height = height;
                   }
-                  await holistic.send({ image: input });
+                  // await holistic.send({ image: input });
                 },
               }),
               slider("Model Complexity", "modelComplexity", undefined, undefined, ["Lite", "Full", "Heavy"]),
@@ -106,6 +144,10 @@ export const PoseAnalysis = () => {
       effectRan.current = true;
     };
   }, []);
+  interface MyFormValues {
+    firstName: string;
+  }
+  const initialValues: MyFormValues = { firstName: "" };
 
   return (
     <div>
@@ -117,11 +159,15 @@ export const PoseAnalysis = () => {
           </canvas>
         </div>
         <Spinner loading={loading}></Spinner>
-        <div className="card">
+        <div className="card-top">
           <p className="card-title">Posture View</p>
           <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
           {isLateralPositionCorrect ? <></> : <AlertC message={AlertMessages.LATERAL_WRONG}></AlertC>}
           {areLandmarksVisible ? <></> : <AlertC message={AlertMessages.LANDMARKS_NOT_VISIBLE}></AlertC>}
+        </div>
+
+        <div className="card-bottom">
+          <NotificationsForm></NotificationsForm>
         </div>
       </div>
       <div ref={controlsElement} className="control-panel"></div>

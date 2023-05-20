@@ -1,5 +1,5 @@
 import { POSE_LANDMARKS } from "@mediapipe/holistic";
-import { findDistance } from "./math-utils";
+import { findAngle, findDistance } from "./math-utils";
 import { POSE_INDEXES_LATERAL } from "./canvas-utils";
 
 enum PostureView {
@@ -8,7 +8,9 @@ enum PostureView {
 }
 
 // -- thresholds
-const OFFSET_THRESHOLD = 0.1;
+const OFFSET_THRESHOLD = 0.2;
+const NECK_INCLINATION_THRESHOLD = 15;
+const TORSO_INCLINATION_THRESHOLD = 1.5;
 
 /**
  * Check in the results returned by mediapipe holistic if certain landmarks are visible on the camera.
@@ -80,7 +82,17 @@ const checkLateralPosture = (
     const rightEar = lmPose[POSE_LANDMARKS.RIGHT_EAR];
     const leftHip = lmPose[POSE_LANDMARKS.LEFT_HIP];
     const rightHip = lmPose[POSE_LANDMARKS.RIGHT_HIP];
+
+    // calculate angles.
+    const neckInclination = findAngle(leftShoulder.x, leftShoulder.y, leftEar.x, leftEar.y);
+    const torsoInclination = findAngle(leftHip.x, leftHip.y, leftShoulder.x, leftShoulder.y);
+
+    console.log("neck: ", neckInclination, " --- torso:", torsoInclination);
+    if (neckInclination < NECK_INCLINATION_THRESHOLD && torsoInclination < TORSO_INCLINATION_THRESHOLD) {
+      return true;
+    }
   }
+  return false;
 };
 
 const checkAnteriorPosture = () => {};

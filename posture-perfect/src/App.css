@@ -66,7 +66,7 @@ body {
   top: 10px;
 }
 
-.card {
+.card-top {
   position: absolute;
   right: 45px;
   top: 45px;
@@ -82,4 +82,34 @@ body {
 .card-title {
   display: flex;
   justify-content: center;
+  width: 100%; /* fills the width of the container */
 }
+
+.card-bottom {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  width: 20%;
+  min-width: 250px; /* minimum width can be adjusted based on requirements */
+  height: 50%;
+  min-height: 400px; /* minimum height can be adjusted based on requirements */
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
+  border-radius: 8%;
+  color: #fff;
+  z-index: 100;
+  background-color: #222;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* aligns items to the top */
+  padding: 2%;
+}
+
+/* Responsive design for smaller screens - todo*/
+/* @media (max-width: 600px) {
+  .card-bottom {
+    width: 90%;
+    height: 80%;
+    right: 5%;
+    bottom: 10%;
+  }
+} */
