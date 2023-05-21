@@ -1,6 +1,6 @@
 import { POSE_LANDMARKS } from "@mediapipe/holistic";
 import { findAngle, findDistance } from "./math-utils";
-import { POSE_INDEXES_LATERAL } from "./canvas-utils";
+import { POSE_INDEXES_LATERAL, POSE_INDEXES_ANTERIOR } from "./canvas-utils";
 
 enum PostureView {
   ANTERIOR = "anterior",
@@ -19,7 +19,7 @@ const TORSO_INCLINATION_THRESHOLD = 1.5;
  * @param keys - the landmark indexes
  * @returns - true if every landmark is visible, false otherwise
  */
-const doLandmarksExist = (obj: any, keys: any[]): boolean => {
+export const doLandmarksExist = (obj: any, keys: any[]): boolean => {
   for (let i = 0; i < keys.length; i++) {
     if (obj[keys[i]].visibility < 0.3) {
       return false;
@@ -95,6 +95,65 @@ const checkLateralPosture = (
   return false;
 };
 
-const checkAnteriorPosture = () => {};
+/// ============================================================
+
+const ALIGNMENT_THRESHOLD = 0.1; // Tolerance value, adjust as necessary
+
+const checkAnteriorAlignment = (
+  currentLandmark1: any,
+  currentLandmark2: any,
+  calibLandmark1: any,
+  calibLandmark2: any
+) => {
+  // Calculate the current and calibrated distances
+  const currentDist = findDistance(currentLandmark1.x, currentLandmark1.y, currentLandmark2.x, currentLandmark2.y);
+  const calibDist = findDistance(calibLandmark1.x, calibLandmark1.y, calibLandmark2.x, calibLandmark2.y);
+
+  // Check the alignment by comparing the current distance with the calibrated distance
+  return Math.abs(currentDist - calibDist) < ALIGNMENT_THRESHOLD;
+};
+
+const checkAnteriorPosture = (
+  results: any,
+  calibPositions: any,
+  setIsAnteriorPosCorrect: any,
+  setLandmarksVisible: any
+) => {
+  const lmPose = results.poseLandmarks;
+
+  if (doLandmarksExist(lmPose, POSE_INDEXES_ANTERIOR)) {
+    setLandmarksVisible(true);
+
+    const leftShoulder = lmPose[POSE_LANDMARKS.LEFT_SHOULDER];
+    const rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
+    const leftEye = lmPose[POSE_LANDMARKS.LEFT_EYE];
+    const rightEye = lmPose[POSE_LANDMARKS.RIGHT_EYE];
+
+    // check alignment based on the calibrated positions
+    const shoulderAlignment = checkAnteriorAlignment(
+      leftShoulder,
+      rightShoulder,
+      calibPositions.leftShoulder.current,
+      calibPositions.rightShoulder.current
+    );
+    const eyeAlignment = checkAnteriorAlignment(
+      leftEye,
+      rightEye,
+      calibPositions.leftEye.current,
+      calibPositions.rightEye.current
+    );
+
+    if (shoulderAlignment && eyeAlignment) {
+      setIsAnteriorPosCorrect(true);
+      return true;
+    } else {
+      setIsAnteriorPosCorrect(false);
+    }
+  } else {
+    setLandmarksVisible(false);
+  }
+
+  return false;
+};
 
 export { PostureView, checkLateralPosture, checkAnteriorPosture };

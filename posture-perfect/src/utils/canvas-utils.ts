@@ -1,10 +1,18 @@
-import { drawConnectors, drawLandmarks, lerp } from "@mediapipe/drawing_utils";
-import { POSE_CONNECTIONS } from "@mediapipe/holistic";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { POSE_CONNECTIONS, POSE_LANDMARKS } from "@mediapipe/holistic";
+import { PostureView } from "./posture-utils";
 
 // -- landmark indexes
-const POSE_INDEXES_LATERAL_LEFT = [7, 11, 23]; // ears + shoulders + hips
-const POSE_INDEXES_LATERAL_RIGHT = [8, 12, 24];
+const TOTAL_POSE_LANDMARKS = 33;
+const POSE_INDEXES_LATERAL_LEFT = [POSE_LANDMARKS.LEFT_EAR, POSE_LANDMARKS.LEFT_SHOULDER, POSE_LANDMARKS.LEFT_HIP];
+const POSE_INDEXES_LATERAL_RIGHT = [POSE_LANDMARKS.RIGHT_EAR, POSE_LANDMARKS.RIGHT_SHOULDER, POSE_LANDMARKS.RIGHT_HIP];
+const POSE_INDEXES_ANTERIOR_LEFT = [POSE_LANDMARKS.LEFT_EYE, POSE_LANDMARKS.LEFT_SHOULDER];
+const POSE_INDEXES_ANTERIOR_RIGHT = [POSE_LANDMARKS.RIGHT_EYE, POSE_LANDMARKS.RIGHT_SHOULDER];
 export const POSE_INDEXES_LATERAL = [...POSE_INDEXES_LATERAL_LEFT, ...POSE_INDEXES_LATERAL_RIGHT];
+export const POSE_INDEXES_ANTERIOR = [...POSE_INDEXES_ANTERIOR_LEFT, ...POSE_INDEXES_ANTERIOR_RIGHT];
+const allIndices = Array.from({ length: TOTAL_POSE_LANDMARKS }, (_, index) => index); // generates [0, 1, ..., 32]
+const indicesToRemoveLateral = allIndices.filter((index) => !POSE_INDEXES_LATERAL.includes(index));
+const indicesToRemoveAnterior = allIndices.filter((index) => !POSE_INDEXES_ANTERIOR.includes(index));
 
 // -- colors of landmarks on canvas
 const LEFT_COLOR = "rgb(0,217,231)";
@@ -23,43 +31,77 @@ function removeElements(obj: any, elements: any) {
 
 /**
  * Remove landmarks we don't want to draw.
- * For lateral, we only want the ears(7, 8), the shoulders (11, 12), and the hips (23, 24)
- * For anterior ...
- * @param results
+ * For lateral, we only want the ears, the shoulders, and the hips to be drawn
+ * For anterior, we only want the eyes and the shoulders
+ * @param results poseLandmarks from mediapipe
+ * @param {PostureView} postureView
  */
-const removeLandmarks = (results: any) => {
+const removeLandmarks = (results: any, postureView: PostureView) => {
   if (results.poseLandmarks) {
-    removeElements(
-      results.poseLandmarks,
-      [0, 1, 2, 3, 4, 5, 6, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32]
-    );
+    if (postureView === PostureView.LATERAL) removeElements(results.poseLandmarks, indicesToRemoveLateral);
+    else removeElements(results.poseLandmarks, indicesToRemoveAnterior);
   }
 };
 
-const drawOnCanvas = (results: any, canvasCtx: CanvasRenderingContext2D, canvasElement: any, activeEffect: string) => {
-  removeLandmarks(results);
+/**
+ * Draw the given landmarks on the canvas
+ * @param canvasCtx context of canvas
+ * @param landmarkIndexes the indexes of the landmarks that need to be drawn
+ * @param landmarks mediapipe results.poseLandmarks
+ * @param fillColor color of the circles of the joints
+ */
+const drawLandmarksOnCanvas = (
+  canvasCtx: CanvasRenderingContext2D,
+  landmarkIndexes: number[],
+  landmarks: any,
+  fillColor: string
+) => {
+  drawLandmarks(
+    canvasCtx,
+    landmarkIndexes.map((index) => landmarks[index]),
+    { visibilityMin: 0.65, color: "white", fillColor }
+  );
+};
+
+const drawSegmentationMask = (
+  canvasCtx: CanvasRenderingContext2D,
+  results: any,
+  canvasElement: any,
+  activeEffect: string
+) => {
+  canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
+
+  // Only overwrite existing pixels.
+  if (activeEffect === "mask" || activeEffect === "both") {
+    canvasCtx.globalCompositeOperation = "source-in";
+    // This can be a color or a texture or whatever...
+    canvasCtx.fillStyle = "#00FF007F";
+    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+  } else {
+    canvasCtx.globalCompositeOperation = "source-out";
+    canvasCtx.fillStyle = "#0000FF7F";
+    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+  }
+  // Only overwrite missing pixels.
+  canvasCtx.globalCompositeOperation = "destination-atop";
+  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx.globalCompositeOperation = "source-over";
+};
+
+const drawOnCanvas = (
+  results: any,
+  postureView: PostureView,
+  canvasCtx: CanvasRenderingContext2D,
+  canvasElement: any,
+  activeEffect: string
+) => {
+  removeLandmarks(results, postureView);
 
   // Draw the overlays.
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   if (results.segmentationMask) {
-    canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
-
-    // Only overwrite existing pixels.
-    if (activeEffect === "mask" || activeEffect === "both") {
-      canvasCtx.globalCompositeOperation = "source-in";
-      // This can be a color or a texture or whatever...
-      canvasCtx.fillStyle = "#00FF007F";
-      canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-    } else {
-      canvasCtx.globalCompositeOperation = "source-out";
-      canvasCtx.fillStyle = "#0000FF7F";
-      canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-    }
-    // Only overwrite missing pixels.
-    canvasCtx.globalCompositeOperation = "destination-atop";
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.globalCompositeOperation = "source-over";
+    drawSegmentationMask(canvasCtx, results, canvasElement, activeEffect);
   } else {
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
   }
@@ -68,16 +110,13 @@ const drawOnCanvas = (results: any, canvasCtx: CanvasRenderingContext2D, canvasE
   drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
     color: "white",
   });
-  drawLandmarks(
-    canvasCtx,
-    Object.values(POSE_INDEXES_LATERAL_RIGHT).map((index) => results.poseLandmarks[index]),
-    { visibilityMin: 0.65, color: "white", fillColor: RIGHT_COLOR }
-  );
-  drawLandmarks(
-    canvasCtx,
-    Object.values(POSE_INDEXES_LATERAL_LEFT).map((index) => results.poseLandmarks[index]),
-    { visibilityMin: 0.65, color: "white", fillColor: LEFT_COLOR }
-  );
+  if (postureView === PostureView.LATERAL) {
+    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_RIGHT, results.poseLandmarks, RIGHT_COLOR);
+    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_LEFT, results.poseLandmarks, LEFT_COLOR);
+  } else {
+    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_RIGHT, results.poseLandmarks, RIGHT_COLOR);
+    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_LEFT, results.poseLandmarks, LEFT_COLOR);
+  }
 
   canvasCtx.restore();
 };
