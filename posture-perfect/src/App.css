@@ -113,3 +113,11 @@ body {
     bottom: 10%;
   }
 } */
+
+.toast-custom-error {
+  background-color: #d32f50 !important; /* Set your desired color */
+}
+
+.toast-custom-info {
+  background-color: #0075ff !important; /* Set your desired color */
+}
