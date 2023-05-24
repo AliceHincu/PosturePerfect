@@ -19,7 +19,7 @@ export const NotificationsForm = ({ initialValues, handleFormSubmit }: Notificat
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={createTimeFieldValidationSchema("timeValueAlert", "timeUnitAlert")
+      validationSchema={createTimeFieldValidationSchema("timeValuePosture", "timeUnitPosture")
         .concat(createTimeFieldValidationSchema("timeValueBreak", "timeUnitBreak"))
         .concat(createTimeFieldValidationSchema("timeValueWater", "timeUnitWater"))}
       onSubmit={(values) => handleFormSubmit(values)}
@@ -29,7 +29,7 @@ export const NotificationsForm = ({ initialValues, handleFormSubmit }: Notificat
           <h2 className="card-title">Notifications</h2>
 
           <AlertLabel></AlertLabel>
-          <TimeField timeValueName="timeValueAlert" timeUnitName="timeUnitAlert"></TimeField>
+          <TimeField timeValueName="timeValuePosture" timeUnitName="timeUnitPosture"></TimeField>
 
           <BreakTimeLabel></BreakTimeLabel>
           <TimeField timeValueName="timeValueBreak" timeUnitName="timeUnitBreak"></TimeField>

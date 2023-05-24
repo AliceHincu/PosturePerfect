@@ -6,7 +6,10 @@ interface PostureViewFormProps {
   postureView: PostureView;
   setPostureView: Dispatch<SetStateAction<PostureView>>;
   calibratePosture: any;
-  startPostureCorrection: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  startCorrection: boolean;
+  startPostureCorrection: () => void;
+  stopPostureCorrection: () => void;
+  disableStart: boolean;
 }
 
 /**
@@ -18,14 +21,32 @@ export const PostureViewForm = ({
   postureView,
   setPostureView,
   calibratePosture,
+  startCorrection,
   startPostureCorrection,
+  stopPostureCorrection,
+  disableStart,
 }: PostureViewFormProps) => {
+  const handleClick = () => {
+    if (startCorrection) {
+      stopPostureCorrection();
+    } else {
+      startPostureCorrection();
+    }
+  };
+
   return (
     <div className="form-content">
       <div className="card-title-top">Posture View</div>
       <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
-      {postureView === PostureView.ANTERIOR && <button onClick={calibratePosture}>Calibrate Posture</button>}
-      <button onClick={startPostureCorrection}>Start posture correction</button>
+      {postureView === PostureView.ANTERIOR && (
+        <button onClick={calibratePosture} disabled={startCorrection}>
+          Calibrate Posture
+        </button>
+      )}
+      <button onClick={handleClick} disabled={disableStart}>
+        {startCorrection ? "Stop posture correction" : "Start posture correction"}
+      </button>
+      {/* <button onClick={startPostureCorrection}>Start posture correction</button> */}
     </div>
   );
 };

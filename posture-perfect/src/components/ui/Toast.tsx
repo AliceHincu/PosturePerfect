@@ -63,6 +63,7 @@ export enum ToastMessages {
   FORM_SUBMITTED = "Values changed",
   CALIBRATED = "Posture calibrated",
   STARTED_CORRECTION = "Analysis of posture in progress...",
+  STOPPED_CORRECTION = "Stopping analysis of posture...",
 
   // warning
   NOT_CALIBRATED = "Please calibrate before starting",
