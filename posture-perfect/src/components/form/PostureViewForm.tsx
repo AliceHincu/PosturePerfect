@@ -6,6 +6,7 @@ interface PostureViewFormProps {
   postureView: PostureView;
   setPostureView: Dispatch<SetStateAction<PostureView>>;
   calibratePosture: any;
+  startPostureCorrection: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 /**
@@ -13,12 +14,18 @@ interface PostureViewFormProps {
  * @param param0
  * @returns
  */
-export const PostureViewForm = ({ postureView, setPostureView, calibratePosture }: PostureViewFormProps) => {
+export const PostureViewForm = ({
+  postureView,
+  setPostureView,
+  calibratePosture,
+  startPostureCorrection,
+}: PostureViewFormProps) => {
   return (
     <div className="form-content">
       <div className="card-title-top">Posture View</div>
       <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
       {postureView === PostureView.ANTERIOR && <button onClick={calibratePosture}>Calibrate Posture</button>}
+      <button onClick={startPostureCorrection}>Start posture correction</button>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { ToastContainer, ToastPosition, Theme, toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 /**
  * Container for the error/info toasts
@@ -18,18 +18,19 @@ export const Toast = () => {
   );
 };
 
-export enum ToastTypes {
+export enum ToastType {
   Error = "error",
   Info = "info",
+  Warning = "warning",
 }
 
 /**
  * Generate a toast to inform the user about something/error
  * @param {string} message
- * @param {ToastTypes} type
+ * @param {ToastType} type
  * @returns
  */
-export const generateToast = (message: string, type: ToastTypes) => {
+export const generateToast = (message: string, type: ToastType) => {
   const toastOptions = {
     position: "top-center" as const,
     hideProgressBar: false,
@@ -42,10 +43,12 @@ export const generateToast = (message: string, type: ToastTypes) => {
   };
 
   switch (type) {
-    case ToastTypes.Error:
+    case ToastType.Error:
       return toast.error(message, { ...toastOptions, autoClose: false, closeButton: false });
-    case ToastTypes.Info:
+    case ToastType.Info:
       return toast.info(message, { ...toastOptions, autoClose: 5000 });
+    case ToastType.Warning:
+      return toast.warning(message, { ...toastOptions, autoClose: 5000 });
     default:
       return null;
   }
@@ -58,4 +61,9 @@ export enum ToastMessages {
 
   // info
   FORM_SUBMITTED = "Values changed",
+  CALIBRATED = "Posture calibrated",
+  STARTED_CORRECTION = "Analysis of posture in progress...",
+
+  // warning
+  NOT_CALIBRATED = "Please calibrate before starting",
 }

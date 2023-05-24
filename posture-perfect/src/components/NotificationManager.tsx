@@ -1,8 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+export enum NotificationMessage {
+  BREAK_ALERT = "Break Alert",
+  WATER_ALERT = "Water Alert",
+  POSTURE_ALERT = "Posture Alert",
+}
+
+const NotificationIcons: Record<NotificationMessage, string> = {
+  [NotificationMessage.BREAK_ALERT]: "notification-icons/break.svg",
+  [NotificationMessage.WATER_ALERT]: "notification-icons/water.svg",
+  [NotificationMessage.POSTURE_ALERT]: "notification-icons/posture.svg",
+};
 
 export interface NotificationValues {
-  timeValueAlert: number;
-  timeUnitAlert: number;
+  timeValuePosture: number;
+  timeUnitPosture: number;
   timeValueBreak: number;
   timeUnitBreak: number;
   timeValueWater: number;
@@ -14,7 +26,7 @@ interface NotificationManagerProps {
 }
 
 /**
- * The logic for notifications
+ * The logic for break and water notifications
  * @param {NotificationManagerProps} param
  * @returns
  */
@@ -31,10 +43,10 @@ export const NotificationManager = ({ notificationValues }: NotificationManagerP
     intervalIds.water && clearInterval(intervalIds.water);
 
     const idBreak = setInterval(() => {
-      sendNotification("Break Alert");
+      sendNotification(NotificationMessage.BREAK_ALERT);
     }, notificationValues.timeValueBreak * notificationValues.timeUnitBreak * 1000);
     const idWater = setInterval(() => {
-      sendNotification("Water Alert");
+      sendNotification(NotificationMessage.WATER_ALERT);
     }, notificationValues.timeValueWater * notificationValues.timeUnitWater * 1000);
 
     setIntervalIds({ break: idBreak, water: idWater });
@@ -53,7 +65,35 @@ export const NotificationManager = ({ notificationValues }: NotificationManagerP
   return null;
 };
 
-export const sendNotification = (message: string) => {
+/**
+ * Checks is enough time has passed since the last posture alter to see if another alert can be sent
+ * @param lastNotificationTime - the last time a notification was sent
+ * @param notificationValues - structure which contains the alert values for posture
+ * @returns
+ */
+export const canNotifyPosture = (
+  lastNotificationTime: React.MutableRefObject<Date | null>,
+  notificationValues: NotificationValues
+) => {
+  const minimumIntervalTime = notificationValues.timeValuePosture * notificationValues.timeUnitPosture * 1000;
+  const currentTime = new Date();
+
+  if (
+    !lastNotificationTime.current ||
+    currentTime.getTime() - lastNotificationTime.current.getTime() >= minimumIntervalTime
+  ) {
+    lastNotificationTime.current = currentTime;
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Send a notification to the user depending on the permissions
+ * @param message
+ */
+export const sendNotification = (message: NotificationMessage) => {
   // Check if the browser supports notifications
   if (!("Notification" in window)) {
     console.log("This browser does not support system notifications");
@@ -74,12 +114,12 @@ export const sendNotification = (message: string) => {
   }
 };
 
-const notify = (message: string) => {
-  let icon = "";
-  if (message.includes("Water")) icon = "notification-icons/water.svg";
-  else if (message.includes("Break")) icon = "notification-icons/break.svg";
-  else if (message.includes("Posture")) icon = "notification-icons/posture.svg";
-
+/**
+ * Construnt and send the notification
+ * @param message
+ */
+const notify = (message: NotificationMessage) => {
+  let icon = NotificationIcons[message];
   const options = icon ? { icon } : {};
-  const notification = new Notification(message, options);
+  new Notification(message, options);
 };

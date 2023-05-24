@@ -10,20 +10,20 @@ import { PostureView, checkAnteriorPosture, checkLateralPosture, doLandmarksExis
 
 import { DropdownPosteriorView } from "./form/dropdowns/DropdownPosteriorView";
 
-import sound from "../audio/stand_straight.mp3";
 import { NotificationsForm } from "./form/NotificationsForm";
-import { NotificationManager, NotificationValues } from "./NotificationManager";
+import {
+  NotificationManager,
+  NotificationMessage,
+  NotificationValues,
+  canNotifyPosture,
+  sendNotification,
+} from "./NotificationManager";
 import { MINUTE_TO_SECONDS } from "./form/dropdowns/TimeField";
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastManager } from "./ToastManager";
-import { ToastMessages, ToastTypes, generateToast } from "./ui/Toast";
+import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewForm } from "./form/PostureViewForm";
-
-const humpAlert = () => {
-  // sendNotification("alert!");
-  // new Audio(sound).play();
-};
 
 export const PoseAnalysis = () => {
   const effectRan = useRef(false); // nullify first useEffect because of version 18.0.0
@@ -31,11 +31,18 @@ export const PoseAnalysis = () => {
   const canvasElement = useRef<HTMLCanvasElement>(null);
   const controlsElement = useRef<HTMLDivElement>(null);
 
+  const [startCorrection, setStartCorrection] = useState(false);
+  const startCorrectionRef = useRef(startCorrection);
+  useEffect(() => {
+    startCorrectionRef.current = startCorrection;
+  }, [startCorrection]);
+
   const [postureView, setPostureView] = useState<PostureView>(PostureView.ANTERIOR); // to trigger re-renders from the dropdown
   const postureViewRef = useRef(postureView); // to always have the latest value for onResults
   // Update the ref whenever postureView changes
   useEffect(() => {
     postureViewRef.current = postureView;
+    setStartCorrection(false);
   }, [postureView]);
 
   const [loading, setLoading] = useState(true);
@@ -50,16 +57,17 @@ export const PoseAnalysis = () => {
 
   // notifications
   const initialValues: NotificationValues = {
-    timeValueAlert: 30,
-    timeUnitAlert: 1,
+    timeValuePosture: 5,
+    timeUnitPosture: 1,
     timeValueBreak: 30,
     timeUnitBreak: +MINUTE_TO_SECONDS,
     timeValueWater: 30,
     timeUnitWater: +MINUTE_TO_SECONDS,
   };
   const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialValues);
+  const lastNotificationTime = useRef<Date | null>(null);
 
-  // posture score
+  // score
   let goodFrames = 0;
   let badFrames = 0;
 
@@ -72,18 +80,23 @@ export const PoseAnalysis = () => {
     rightEye: any;
   }>({ leftShoulder: null, rightShoulder: null, leftEye: null, rightEye: null });
   const landmarks = useRef<any>(null);
-  // const handleBadPosture = () => {
-  //   if (soundPlayed.current) return;
-  //   humpAlert();
-  //   soundPlayed.current = true;
-  //   setTimeout(() => {
-  //     soundPlayed.current = false;
-  //   }, 5000);
-  // };
+
+  const handleBadPosture = () => {
+    console.log("here");
+    // if (soundPlayed.current) return;
+    // humpAlert();
+    // soundPlayed.current = true;
+    // setTimeout(() => {
+    //   soundPlayed.current = false;
+    // }, 5000);
+    // new Audio(sound).play();
+    sendNotification(NotificationMessage.POSTURE_ALERT);
+  };
 
   const onResults = (
     results: any,
     postureViewRef: any,
+    startCorrectionRef: any,
     canvasCtx: CanvasRenderingContext2D,
     canvasElement: any,
     fpsControl: any,
@@ -94,13 +107,19 @@ export const PoseAnalysis = () => {
     landmarks.current = results.poseLandmarks;
 
     drawOnCanvas(results, currentPostureView, canvasCtx, canvasElement, activeEffect);
-    // if (postureView === PostureView.LATERAL) {
-    //   if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosCorrect, setLandmarksVisible)) {
-    //     handleBadPosture();
-    //   }
-    // } else {
-    //   checkAnteriorPosture(results, calibPositions, setIsAnteriorPosCorrect, setLandmarksVisible);
-    // }
+    if (startCorrectionRef.current) {
+      if (postureView === PostureView.LATERAL) {
+        if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosCorrect, setLandmarksVisible)) {
+          // handleBadPosture();
+        }
+      } else {
+        if (!checkAnteriorPosture(results, calibPositions, setIsAnteriorPosCorrect, setLandmarksVisible)) {
+          if (canNotifyPosture(lastNotificationTime, notificationValues)) {
+            handleBadPosture();
+          }
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -112,7 +131,15 @@ export const PoseAnalysis = () => {
         const holistic = new Holistic(config);
         holistic.onResults((results) => {
           setLoading(false);
-          onResults(results, postureViewRef, canvasCtx, canvasElement.current, fpsControl, activeEffect);
+          onResults(
+            results,
+            postureViewRef,
+            startCorrectionRef,
+            canvasCtx,
+            canvasElement.current,
+            fpsControl,
+            activeEffect
+          );
         });
 
         // Present a control panel through which the user can manipulate the solution options.
@@ -157,7 +184,7 @@ export const PoseAnalysis = () => {
 
   const handleFormSubmit = (values: NotificationValues) => {
     setNotificationValues(values);
-    generateToast(ToastMessages.FORM_SUBMITTED, ToastTypes.Info);
+    generateToast(ToastMessages.FORM_SUBMITTED, ToastType.Info);
   };
 
   // Wrapper function that calls calibratePosture with the correct arguments
@@ -171,8 +198,25 @@ export const PoseAnalysis = () => {
       calibPositions.current.rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
       calibPositions.current.leftEye = lmPose[POSE_LANDMARKS.LEFT_EYE];
       calibPositions.current.rightEye = lmPose[POSE_LANDMARKS.RIGHT_EYE];
+      generateToast(ToastMessages.CALIBRATED, ToastType.Info);
+    } else {
+      generateToast(ToastMessages.LANDMARKS_NOT_VISIBLE, ToastType.Warning);
     }
-    console.log(calibPositions.current);
+  };
+
+  const startPostureCorrection = () => {
+    if (postureView === PostureView.ANTERIOR) {
+      if (
+        !calibPositions.current.leftShoulder ||
+        !calibPositions.current.rightShoulder ||
+        !calibPositions.current.leftEye ||
+        !calibPositions.current.rightEye
+      ) {
+        generateToast(ToastMessages.NOT_CALIBRATED, ToastType.Warning);
+      }
+      setStartCorrection(true);
+      generateToast(ToastMessages.STARTED_CORRECTION, ToastType.Info);
+    }
   };
 
   return (
@@ -195,6 +239,7 @@ export const PoseAnalysis = () => {
             postureView={postureView}
             setPostureView={setPostureView}
             calibratePosture={handleCalibration}
+            startPostureCorrection={startPostureCorrection}
           ></PostureViewForm>
         </div>
 

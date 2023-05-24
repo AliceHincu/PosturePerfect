@@ -9,7 +9,11 @@ const POSE_INDEXES_LATERAL_RIGHT = [POSE_LANDMARKS.RIGHT_EAR, POSE_LANDMARKS.RIG
 const POSE_INDEXES_ANTERIOR_LEFT = [POSE_LANDMARKS.LEFT_EYE, POSE_LANDMARKS.LEFT_SHOULDER];
 const POSE_INDEXES_ANTERIOR_RIGHT = [POSE_LANDMARKS.RIGHT_EYE, POSE_LANDMARKS.RIGHT_SHOULDER];
 export const POSE_INDEXES_LATERAL = [...POSE_INDEXES_LATERAL_LEFT, ...POSE_INDEXES_LATERAL_RIGHT];
-export const POSE_INDEXES_ANTERIOR = [...POSE_INDEXES_ANTERIOR_LEFT, ...POSE_INDEXES_ANTERIOR_RIGHT];
+export const POSE_INDEXES_ANTERIOR = [
+  ...POSE_INDEXES_ANTERIOR_LEFT,
+  ...POSE_INDEXES_ANTERIOR_RIGHT,
+  POSE_LANDMARKS.NOSE,
+];
 const allIndices = Array.from({ length: TOTAL_POSE_LANDMARKS }, (_, index) => index); // generates [0, 1, ..., 32]
 const indicesToRemoveLateral = allIndices.filter((index) => !POSE_INDEXES_LATERAL.includes(index));
 const indicesToRemoveAnterior = allIndices.filter((index) => !POSE_INDEXES_ANTERIOR.includes(index));
@@ -17,6 +21,7 @@ const indicesToRemoveAnterior = allIndices.filter((index) => !POSE_INDEXES_ANTER
 // -- colors of landmarks on canvas
 const LEFT_COLOR = "rgb(0,217,231)";
 const RIGHT_COLOR = "rgb(255,138,0)";
+const NOSE_COLOR = "white";
 
 /**
  * Remove given elements from object
@@ -116,6 +121,7 @@ const drawOnCanvas = (
   } else {
     drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_RIGHT, results.poseLandmarks, RIGHT_COLOR);
     drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_LEFT, results.poseLandmarks, LEFT_COLOR);
+    drawLandmarksOnCanvas(canvasCtx, [POSE_LANDMARKS.NOSE], results.poseLandmarks, NOSE_COLOR);
   }
 
   canvasCtx.restore();

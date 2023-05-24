@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Id, toast } from "react-toastify";
-import { ToastTypes, generateToast, Toast, ToastMessages } from "./ui/Toast";
+import { ToastType, generateToast, Toast, ToastMessages } from "./ui/Toast";
 import { PostureView } from "../utils/posture-utils";
 
 interface ToastManagerProps {
@@ -27,7 +27,7 @@ export const ToastManager: React.FC<ToastManagerProps> = ({ postureView, isLater
     isVisible: boolean,
     toastIdRef: React.MutableRefObject<Id | null>,
     alertMessage: ToastMessages,
-    toastType: ToastTypes
+    toastType: ToastType
   ) => {
     if (!isVisible) {
       toastIdRef.current = generateToast(alertMessage, toastType);
@@ -39,12 +39,12 @@ export const ToastManager: React.FC<ToastManagerProps> = ({ postureView, isLater
 
   useEffect(() => {
     if (postureView === PostureView.LATERAL)
-      handleToastDisplay(isLateralPosCorrect, lateralPosToastId, ToastMessages.LATERAL_WRONG, ToastTypes.Error);
+      handleToastDisplay(isLateralPosCorrect, lateralPosToastId, ToastMessages.LATERAL_WRONG, ToastType.Error);
   }, [isLateralPosCorrect]);
 
   useEffect(() => {
     if (postureView === PostureView.LATERAL)
-      handleToastDisplay(landmarksVisible, landmarksVisToastId, ToastMessages.LANDMARKS_NOT_VISIBLE, ToastTypes.Error);
+      handleToastDisplay(landmarksVisible, landmarksVisToastId, ToastMessages.LANDMARKS_NOT_VISIBLE, ToastType.Error);
   }, [landmarksVisible]);
 
   return <Toast />;

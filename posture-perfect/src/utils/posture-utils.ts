@@ -97,20 +97,52 @@ const checkLateralPosture = (
 
 /// ============================================================
 
-const ALIGNMENT_THRESHOLD = 0.1; // Tolerance value, adjust as necessary
+const ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
+const ALIGNMENT_EYES_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
+
+// const checkAnteriorAlignment = (
+//   currentLandmark1: any,
+//   currentLandmark2: any,
+//   calibLandmark1: any,
+//   calibLandmark2: any,
+//   threshold: number
+// ) => {
+//   // Calculate the current and calibrated distances
+//   const currentDist = findDistance(currentLandmark1.x, currentLandmark1.y, currentLandmark2.x, currentLandmark2.y);
+//   const calibDist = findDistance(calibLandmark1.x, calibLandmark1.y, calibLandmark2.x, calibLandmark2.y);
+
+//   // Check the alignment by comparing the current distance with the calibrated distance
+//   return Math.abs(currentDist - calibDist) < threshold;
+// };
 
 const checkAnteriorAlignment = (
   currentLandmark1: any,
   currentLandmark2: any,
   calibLandmark1: any,
-  calibLandmark2: any
+  calibLandmark2: any,
+  threshold: number
 ) => {
-  // Calculate the current and calibrated distances
-  const currentDist = findDistance(currentLandmark1.x, currentLandmark1.y, currentLandmark2.x, currentLandmark2.y);
-  const calibDist = findDistance(calibLandmark1.x, calibLandmark1.y, calibLandmark2.x, calibLandmark2.y);
+  // Calculate the average y-coordinate for current and calibrated positions
+  const currentAvgY = (currentLandmark1.y + currentLandmark2.y) / 2;
+  const calibAvgY = (calibLandmark1.y + calibLandmark2.y) / 2;
 
-  // Check the alignment by comparing the current distance with the calibrated distance
-  return Math.abs(currentDist - calibDist) < ALIGNMENT_THRESHOLD;
+  // Check the alignment by comparing the current average y-coordinate with the calibrated y-coordinate
+  return Math.abs(currentAvgY - calibAvgY) < threshold;
+};
+
+const checkIfPersonIsTurned = (
+  currentHead: any,
+  currentShoulderLeft: any,
+  currentShoulderRight: any,
+  threshold: number
+) => {
+  // Calculate the average x-coordinate of the shoulders
+  const avgShoulderX = (currentShoulderLeft.x + currentShoulderRight.x) / 2;
+
+  // Check if the person is turned by comparing the x-coordinate of the head with the average x-coordinate of the shoulders
+  const isTurned = Math.abs(currentHead.x - avgShoulderX) > threshold;
+
+  return isTurned;
 };
 
 const checkAnteriorPosture = (
@@ -128,26 +160,32 @@ const checkAnteriorPosture = (
     const rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
     const leftEye = lmPose[POSE_LANDMARKS.LEFT_EYE];
     const rightEye = lmPose[POSE_LANDMARKS.RIGHT_EYE];
+    const head = lmPose[POSE_LANDMARKS.NOSE];
 
+    const isHeadTurned = checkIfPersonIsTurned(head, leftShoulder, rightShoulder, 0.05);
     // check alignment based on the calibrated positions
     const shoulderAlignment = checkAnteriorAlignment(
       leftShoulder,
       rightShoulder,
-      calibPositions.leftShoulder.current,
-      calibPositions.rightShoulder.current
+      calibPositions.current.leftShoulder,
+      calibPositions.current.rightShoulder,
+      ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR
     );
     const eyeAlignment = checkAnteriorAlignment(
       leftEye,
       rightEye,
-      calibPositions.leftEye.current,
-      calibPositions.rightEye.current
+      calibPositions.current.leftEye,
+      calibPositions.current.rightEye,
+      ALIGNMENT_EYES_THRESHOLD_ANTERIOR
     );
 
-    if (shoulderAlignment && eyeAlignment) {
-      setIsAnteriorPosCorrect(true);
-      return true;
-    } else {
-      setIsAnteriorPosCorrect(false);
+    if (!isHeadTurned) {
+      if (eyeAlignment && shoulderAlignment) {
+        setIsAnteriorPosCorrect(true);
+        return true;
+      } else {
+        setIsAnteriorPosCorrect(false);
+      }
     }
   } else {
     setLandmarksVisible(false);
