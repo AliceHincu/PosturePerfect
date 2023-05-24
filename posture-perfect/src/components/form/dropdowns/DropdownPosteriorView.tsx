@@ -1,14 +1,13 @@
+import { setPostureView } from "../../../redux/features/posture/postureSlice";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { PostureView } from "../../../utils/posture-utils";
-import { Dispatch, SetStateAction } from "react";
 
-interface DropdownPosteriorViewProps {
-  postureView: PostureView;
-  setPostureView: Dispatch<SetStateAction<PostureView>>;
-}
+export const DropdownPosteriorView = () => {
+  const postureView = useAppSelector((state) => state.posture.postureView);
+  const dispatch = useAppDispatch();
 
-export const DropdownPosteriorView = ({ postureView, setPostureView }: DropdownPosteriorViewProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPostureView(event.target.value as PostureView);
+    dispatch(setPostureView(event.target.value as PostureView));
   };
 
   return (

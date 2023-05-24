@@ -1,22 +1,24 @@
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { PostureView, doLandmarksExist } from "../utils/posture-utils";
 import { PostureViewForm } from "./form/PostureViewForm";
 import { POSE_INDEXES_ANTERIOR } from "../utils/canvas-utils";
 import { POSE_LANDMARKS } from "@mediapipe/holistic";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
+import { useAppSelector } from "../redux/hooks";
 
 interface PostureCorrectionProps {
-  postureView: PostureView;
-  setPostureView: Dispatch<SetStateAction<PostureView>>;
   startCorrection: boolean;
   setStartCorrection: Dispatch<SetStateAction<boolean>>;
   calibPositions: any;
-  landmarks: any;
 }
 
 export const PostureViewManager = (props: PostureCorrectionProps) => {
-  const { postureView, setPostureView, startCorrection, setStartCorrection, calibPositions, landmarks } = props;
+  const postureView = useAppSelector((state) => state.posture.postureView);
+
+  const { startCorrection, setStartCorrection, calibPositions } = props;
+
   const [isCalibrationGood, setIsCalibrationGood] = useState(false);
+  const poseLm = useAppSelector((state) => state.posture.poseLandmarks);
 
   /**
    * Check if all the landmarks are calibrated correctly
@@ -35,7 +37,7 @@ export const PostureViewManager = (props: PostureCorrectionProps) => {
    * Wrapper function that calls calibratePosture with the correct arguments
    */
   const handleCalibration = () => {
-    calibratePosture(landmarks.current);
+    calibratePosture(poseLm);
   };
 
   /**
@@ -43,7 +45,7 @@ export const PostureViewManager = (props: PostureCorrectionProps) => {
    * @param lmPose
    */
   const calibratePosture = (lmPose: any) => {
-    if (doLandmarksExist(lmPose, POSE_INDEXES_ANTERIOR)) {
+    if (poseLm && doLandmarksExist(poseLm, POSE_INDEXES_ANTERIOR)) {
       calibPositions.current.leftShoulder = lmPose[POSE_LANDMARKS.LEFT_SHOULDER];
       calibPositions.current.rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
       calibPositions.current.leftEye = lmPose[POSE_LANDMARKS.LEFT_EYE];
@@ -82,8 +84,6 @@ export const PostureViewManager = (props: PostureCorrectionProps) => {
 
   return (
     <PostureViewForm
-      postureView={postureView}
-      setPostureView={setPostureView}
       calibratePosture={handleCalibration}
       startCorrection={startCorrection}
       startPostureCorrection={startPostureCorrection}

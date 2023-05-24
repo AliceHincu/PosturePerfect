@@ -2,9 +2,10 @@ import React, { useEffect, useRef } from "react";
 import { Id, toast } from "react-toastify";
 import { ToastType, generateToast, Toast, ToastMessages } from "./ui/Toast";
 import { PostureView } from "../utils/posture-utils";
+import { useAppSelector } from "../redux/hooks";
 
 interface ToastManagerProps {
-  postureView: PostureView;
+  // postureView: PostureView;
   isLateralPosCorrect: boolean;
   landmarksVisible: boolean;
 }
@@ -15,7 +16,12 @@ interface ToastManagerProps {
  * @param landmarksVisible - if all the necessary landmarks are visible
  * @returns
  */
-export const ToastManager: React.FC<ToastManagerProps> = ({ postureView, isLateralPosCorrect, landmarksVisible }) => {
+export const ToastManager: React.FC<ToastManagerProps> = ({
+  // postureView,
+  isLateralPosCorrect,
+  landmarksVisible,
+}) => {
+  const postureView = useAppSelector((state) => state.posture.postureView);
   const lateralPosToastId = useRef<Id | null>(null);
   const landmarksVisToastId = useRef<Id | null>(null);
 

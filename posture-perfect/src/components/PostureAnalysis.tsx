@@ -25,12 +25,20 @@ import { ToastManager } from "./ToastManager";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewForm } from "./form/PostureViewForm";
 import { PostureViewManager } from "./PostureCorrectionManager";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setPoseLandmarks } from "../redux/features/posture/postureSlice";
 
 export const PoseAnalysis = () => {
+  // redux
+  const dispatch = useAppDispatch();
+
   // references for video capturing and drawing
   const videoElement = useRef<HTMLVideoElement>(null);
   const canvasElement = useRef<HTMLCanvasElement>(null);
   const controlsElement = useRef<HTMLDivElement>(null);
+
+  // loading the canvas
+  const [loading, setLoading] = useState(true);
 
   // notifications
   const initialValues: NotificationValues = {
@@ -48,29 +56,21 @@ export const PoseAnalysis = () => {
   let goodFrames = 0;
   let badFrames = 0;
 
+  // Update the ref whenever startCorrection changes
   const [startCorrection, setStartCorrection] = useState(false);
   const startCorrectionRef = useRef(startCorrection);
   useEffect(() => {
-    startCorrectionRef.current = startCorrection;
+    startCorrectionRef.current = startCorrection; // to always have the latest value for onResults
   }, [startCorrection]);
 
-  const [postureView, setPostureView] = useState<PostureView>(PostureView.ANTERIOR); // to trigger re-renders from the dropdown
-  const postureViewRef = useRef(postureView); // to always have the latest value for onResults
   // Update the ref whenever postureView changes
+  const postureView = useAppSelector((state) => state.posture.postureView);
+  const postureViewRef = useRef(postureView); // to always have the latest value for onResults
   useEffect(() => {
     postureViewRef.current = postureView;
     setStartCorrection(false);
   }, [postureView]);
 
-  const [loading, setLoading] = useState(true);
-  const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
-  const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
-  const [landmarksVisible, setLandmarksVisible] = useState(true);
-
-  const soundPlayed = useRef(false);
-  let activeEffect: any = "mask";
-
-  // Refs for storing the calibration positions
   // Ref for storing the calibration positions
   const calibPositions = useRef<{
     leftShoulder: any;
@@ -78,7 +78,12 @@ export const PoseAnalysis = () => {
     leftEye: any;
     rightEye: any;
   }>({ leftShoulder: null, rightShoulder: null, leftEye: null, rightEye: null });
-  const landmarks = useRef<any>(null);
+
+  const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
+  const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
+  const [landmarksVisible, setLandmarksVisible] = useState(true);
+
+  let activeEffect: any = "mask";
 
   const onResults = (
     results: any,
@@ -90,10 +95,9 @@ export const PoseAnalysis = () => {
     activeEffect: string
   ) => {
     fpsControl.tick(); // Update the frame rate.
-    const currentPostureView = postureViewRef.current;
-    landmarks.current = results.poseLandmarks;
+    drawOnCanvas(results, postureViewRef.current, canvasCtx, canvasElement, activeEffect);
+    dispatch(setPoseLandmarks(results.poseLandmarks));
 
-    drawOnCanvas(results, currentPostureView, canvasCtx, canvasElement, activeEffect);
     if (startCorrectionRef.current) {
       if (postureView === PostureView.LATERAL) {
         if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosCorrect, setLandmarksVisible)) {
@@ -176,11 +180,7 @@ export const PoseAnalysis = () => {
 
   return (
     <div>
-      <ToastManager
-        postureView={postureView}
-        isLateralPosCorrect={isLateralPosCorrect}
-        landmarksVisible={landmarksVisible}
-      />
+      <ToastManager isLateralPosCorrect={isLateralPosCorrect} landmarksVisible={landmarksVisible} />
       <div className="container">
         <video ref={videoElement} className="input_video"></video>
         <div className="canvas-container">
@@ -191,12 +191,9 @@ export const PoseAnalysis = () => {
         <Spinner loading={loading}></Spinner>
         <div className="card-top">
           <PostureViewManager
-            postureView={postureView}
-            setPostureView={setPostureView}
             startCorrection={startCorrection}
             setStartCorrection={setStartCorrection}
             calibPositions={calibPositions}
-            landmarks={landmarks}
           ></PostureViewManager>
         </div>
 
