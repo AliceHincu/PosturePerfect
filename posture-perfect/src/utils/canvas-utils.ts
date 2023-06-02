@@ -97,7 +97,7 @@ const drawOnCanvas = (
   if (results.segmentationMask) {
     drawSegmentationMask(canvasCtx, results, canvasElement);
   } else {
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+    // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
   }
 
   // Pose...

@@ -22,10 +22,12 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastManager } from "./ToastManager";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewManager } from "./PostureViewManager";
+import Webcam from "react-webcam";
 
 export const PoseAnalysis = () => {
   // references for video capturing and drawing
   const videoElement = useRef<HTMLVideoElement>(null);
+  const webcamRef = useRef<Webcam>(null);
   const canvasElement = useRef<HTMLCanvasElement>(null);
   const controlsElement = useRef<HTMLDivElement>(null);
 
@@ -75,6 +77,9 @@ export const PoseAnalysis = () => {
   const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
   const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
   const [landmarksVisible, setLandmarksVisible] = useState(true);
+
+  const [webcamSize, setWebcamSize] = useState({ width: 1280, height: 720 });
+  const [selfieMode, setSelfieMode] = useState(true);
 
   const onResults = (
     results: any,
@@ -128,18 +133,18 @@ export const PoseAnalysis = () => {
                 console.log(name);
                 holistic.reset();
 
-                // Request a MediaStream from the new camera.
-                const stream = await navigator.mediaDevices.getUserMedia({
-                  video: {
-                    deviceId: { exact: name },
-                  },
-                });
+                // // Request a MediaStream from the new camera.
+                // const stream = await navigator.mediaDevices.getUserMedia({
+                //   video: {
+                //     deviceId: { exact: name },
+                //   },
+                // });
 
-                // Assign the MediaStream to the video element and start playing the video.
-                if (videoElement.current) {
-                  videoElement.current.srcObject = stream;
-                  videoElement.current.play();
-                }
+                // // Assign the MediaStream to the video element and start playing the video.
+                // if (videoElement.current) {
+                //   videoElement.current.srcObject = stream;
+                //   videoElement.current.play();
+                // }
               },
               onFrame: async (input, size) => {
                 const { width, height } = canvasDimensions(size);
@@ -160,7 +165,8 @@ export const PoseAnalysis = () => {
           .on((x) => {
             const options = x;
             //@ts-ignore
-            videoElement.current.classList.toggle("selfie", options.selfieMode);
+            // videoElement.current.classList.toggle("selfie", options.selfieMode);
+            setSelfieMode(options.selfieMode);
             holistic.setOptions(options);
           });
       }
@@ -172,6 +178,38 @@ export const PoseAnalysis = () => {
     generateToast(ToastMessages.FORM_SUBMITTED, ToastType.Info);
   };
 
+  const videoConstraints = {
+    aspectRatio: 4 / 3, // 4:3
+    facingMode: "user",
+    width: { min: 256 },
+    height: { min: 144 },
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const aspect = videoConstraints.aspectRatio;
+      let width, height;
+
+      if (window.innerWidth > window.innerHeight) {
+        height = window.innerHeight;
+        width = height * aspect;
+      } else {
+        width = window.innerWidth;
+        height = width / aspect;
+      }
+      setWebcamSize({ width, height });
+      // if (canvasElement.current) {
+      //   canvasElement.current.width = width;
+      //   canvasElement.current.height = height;
+      // }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div>
       <ToastManager
@@ -179,15 +217,48 @@ export const PoseAnalysis = () => {
         isLateralPosCorrect={isLateralPosCorrect}
         landmarksVisible={landmarksVisible}
       />
+      <div
+        style={{
+          backgroundColor: "#596e73",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "0 10%", // Padding 10% on left and right
+          height: "100vh",
+          boxSizing: "border-box", // Include padding in height calculation
+        }}
+      >
+        <Webcam
+          ref={webcamRef}
+          videoConstraints={videoConstraints}
+          mirrored={selfieMode}
+          width={webcamSize.width}
+          height={webcamSize.height}
+          style={{
+            visibility: loading ? "hidden" : "visible",
+            position: "absolute",
+            textAlign: "center",
+            zIndex: 1,
+          }}
+        />
+        <canvas
+          ref={canvasElement}
+          style={{
+            position: "absolute",
+            textAlign: "center",
+            zIndex: 2,
+          }}
+        ></canvas>
+      </div>
       <div className="container">
-        <video ref={videoElement} className="input_video"></video>
-        <div className="canvas-container">
+        {/* <video ref={videoElement} className="input_video"></video> */}
+        {/* <div className="canvas-container">
           <canvas ref={canvasElement} className="output_canvas" width="1280px" height="720px">
             {" "}
           </canvas>
-        </div>
+        </div> */}
         <Spinner loading={loading}></Spinner>
-        <div className="card-top">
+        {/* <div className="card-top">
           <PostureViewManager
             postureView={postureView}
             setPostureView={setPostureView}
@@ -201,7 +272,7 @@ export const PoseAnalysis = () => {
         <div className="card-bottom">
           <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
           <NotificationManager notificationValues={notificationValues} />
-        </div>
+        </div> */}
       </div>
       <div ref={controlsElement} className="control-panel"></div>
     </div>
