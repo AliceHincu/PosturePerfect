@@ -1,14 +1,12 @@
-import { Holistic, POSE_LANDMARKS } from "@mediapipe/holistic";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { Holistic } from "@mediapipe/holistic";
+import { useEffect, useRef, useState } from "react";
 import { ControlPanel, FPS, SourcePicker } from "@mediapipe/control_utils";
 import { slider, toggle, text } from "../utils/control-factory";
 import { canvasDimensions } from "../utils/dimensions";
 import { Spinner } from "./ui/Spinner";
-import { POSE_INDEXES_ANTERIOR, drawOnCanvas } from "../utils/canvas-utils";
+import { drawOnCanvas } from "../utils/canvas-utils";
 import { config, initialConfig } from "../utils/holistic-utils";
-import { PostureView, checkAnteriorPosture, checkLateralPosture, doLandmarksExist } from "../utils/posture-utils";
-
-import { DropdownPosteriorView } from "./form/dropdowns/DropdownPosteriorView";
+import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils/posture-utils";
 
 import { NotificationsForm } from "./form/NotificationsForm";
 import {
@@ -23,15 +21,9 @@ import { MINUTE_TO_SECONDS } from "./form/dropdowns/TimeField";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastManager } from "./ToastManager";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
-import { PostureViewForm } from "./form/PostureViewForm";
-import { PostureViewManager } from "./PostureCorrectionManager";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setPoseLandmarks } from "../redux/features/posture/postureSlice";
+import { PostureViewManager } from "./PostureViewManager";
 
 export const PoseAnalysis = () => {
-  // redux
-  const dispatch = useAppDispatch();
-
   // references for video capturing and drawing
   const videoElement = useRef<HTMLVideoElement>(null);
   const canvasElement = useRef<HTMLCanvasElement>(null);
@@ -57,18 +49,18 @@ export const PoseAnalysis = () => {
   let badFrames = 0;
 
   // Update the ref whenever startCorrection changes
-  const [startCorrection, setStartCorrection] = useState(false);
-  const startCorrectionRef = useRef(startCorrection);
+  const [startAnalysis, setStartAnalysis] = useState(false);
+  const startCorrectionRef = useRef(startAnalysis);
   useEffect(() => {
-    startCorrectionRef.current = startCorrection; // to always have the latest value for onResults
-  }, [startCorrection]);
+    startCorrectionRef.current = startAnalysis; // to always have the latest value for onResults
+  }, [startAnalysis]);
 
   // Update the ref whenever postureView changes
-  const postureView = useAppSelector((state) => state.posture.postureView);
+  const [postureView, setPostureView] = useState<PostureView>(PostureView.ANTERIOR); // to trigger re-renders from the dropdown
   const postureViewRef = useRef(postureView); // to always have the latest value for onResults
   useEffect(() => {
     postureViewRef.current = postureView;
-    setStartCorrection(false);
+    setStartAnalysis(false);
   }, [postureView]);
 
   // Ref for storing the calibration positions
@@ -79,11 +71,10 @@ export const PoseAnalysis = () => {
     rightEye: any;
   }>({ leftShoulder: null, rightShoulder: null, leftEye: null, rightEye: null });
 
+  const landmarks = useRef<any>(null);
   const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
   const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
   const [landmarksVisible, setLandmarksVisible] = useState(true);
-
-  let activeEffect: any = "mask";
 
   const onResults = (
     results: any,
@@ -91,12 +82,11 @@ export const PoseAnalysis = () => {
     startCorrectionRef: any,
     canvasCtx: CanvasRenderingContext2D,
     canvasElement: any,
-    fpsControl: any,
-    activeEffect: string
+    fpsControl: any
   ) => {
     fpsControl.tick(); // Update the frame rate.
-    drawOnCanvas(results, postureViewRef.current, canvasCtx, canvasElement, activeEffect);
-    dispatch(setPoseLandmarks(results.poseLandmarks));
+    landmarks.current = results.poseLandmarks;
+    drawOnCanvas(results, postureViewRef.current, canvasCtx, canvasElement);
 
     if (startCorrectionRef.current) {
       if (postureView === PostureView.LATERAL) {
@@ -122,15 +112,7 @@ export const PoseAnalysis = () => {
         const holistic = new Holistic(config);
         holistic.onResults((results) => {
           setLoading(false);
-          onResults(
-            results,
-            postureViewRef,
-            startCorrectionRef,
-            canvasCtx,
-            canvasElement.current,
-            fpsControl,
-            activeEffect
-          );
+          onResults(results, postureViewRef, startCorrectionRef, canvasCtx, canvasElement.current, fpsControl);
         });
 
         // Present a control panel through which the user can manipulate the solution options.
@@ -141,9 +123,23 @@ export const PoseAnalysis = () => {
             toggle("Selfie Mode", "selfieMode"),
 
             new SourcePicker({
-              onSourceChanged: () => {
+              onSourceChanged: async (name: string) => {
                 // Resets because the pose gives better results when reset between source changes.
+                console.log(name);
                 holistic.reset();
+
+                // Request a MediaStream from the new camera.
+                const stream = await navigator.mediaDevices.getUserMedia({
+                  video: {
+                    deviceId: { exact: name },
+                  },
+                });
+
+                // Assign the MediaStream to the video element and start playing the video.
+                if (videoElement.current) {
+                  videoElement.current.srcObject = stream;
+                  videoElement.current.play();
+                }
               },
               onFrame: async (input, size) => {
                 const { width, height } = canvasDimensions(size);
@@ -160,13 +156,11 @@ export const PoseAnalysis = () => {
             toggle("Smooth Segmentation", "smoothSegmentation"),
             slider("Min Detection Confidence", "minDetectionConfidence", [0, 1], 0.01),
             slider("Min Tracking Confidence", "minTrackingConfidence", [0, 1], 0.01),
-            slider("Effect", "effect", undefined, undefined, { background: "Background", mask: "Foreground" }),
           ])
           .on((x) => {
             const options = x;
             //@ts-ignore
             videoElement.current.classList.toggle("selfie", options.selfieMode);
-            activeEffect = x["effect"];
             holistic.setOptions(options);
           });
       }
@@ -180,7 +174,11 @@ export const PoseAnalysis = () => {
 
   return (
     <div>
-      <ToastManager isLateralPosCorrect={isLateralPosCorrect} landmarksVisible={landmarksVisible} />
+      <ToastManager
+        postureView={postureView}
+        isLateralPosCorrect={isLateralPosCorrect}
+        landmarksVisible={landmarksVisible}
+      />
       <div className="container">
         <video ref={videoElement} className="input_video"></video>
         <div className="canvas-container">
@@ -191,9 +189,12 @@ export const PoseAnalysis = () => {
         <Spinner loading={loading}></Spinner>
         <div className="card-top">
           <PostureViewManager
-            startCorrection={startCorrection}
-            setStartCorrection={setStartCorrection}
+            postureView={postureView}
+            setPostureView={setPostureView}
+            startCorrection={startAnalysis}
+            setStartCorrection={setStartAnalysis}
             calibPositions={calibPositions}
+            landmarks={landmarks}
           ></PostureViewManager>
         </div>
 

@@ -19,9 +19,6 @@ export const postureSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    setPoseLandmarks: (state, action: PayloadAction<any>) => {
-      state.poseLandmarks = action.payload;
-    },
     setPostureView: (state, action: PayloadAction<PostureView>) => {
       state.postureView = action.payload;
     },
@@ -29,7 +26,7 @@ export const postureSlice = createSlice({
 });
 
 // export const { increment, decrement, incrementByAmount } = postureSlice.actions;
-export const { setPoseLandmarks, setPostureView } = postureSlice.actions;
+export const { setPostureView } = postureSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPoseLandmarks = (state: RootState) => state.posture.poseLandmarks;

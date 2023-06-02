@@ -68,25 +68,15 @@ const drawLandmarksOnCanvas = (
   );
 };
 
-const drawSegmentationMask = (
-  canvasCtx: CanvasRenderingContext2D,
-  results: any,
-  canvasElement: any,
-  activeEffect: string
-) => {
+const drawSegmentationMask = (canvasCtx: CanvasRenderingContext2D, results: any, canvasElement: any) => {
   canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
 
   // Only overwrite existing pixels.
-  if (activeEffect === "mask" || activeEffect === "both") {
-    canvasCtx.globalCompositeOperation = "source-in";
-    // This can be a color or a texture or whatever...
-    canvasCtx.fillStyle = "#00FF007F";
-    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-  } else {
-    canvasCtx.globalCompositeOperation = "source-out";
-    canvasCtx.fillStyle = "#0000FF7F";
-    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-  }
+  canvasCtx.globalCompositeOperation = "source-in";
+  // This can be a color or a texture or whatever...
+  canvasCtx.fillStyle = "#00FF007F";
+  canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
   // Only overwrite missing pixels.
   canvasCtx.globalCompositeOperation = "destination-atop";
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
@@ -97,8 +87,7 @@ const drawOnCanvas = (
   results: any,
   postureView: PostureView,
   canvasCtx: CanvasRenderingContext2D,
-  canvasElement: any,
-  activeEffect: string
+  canvasElement: any
 ) => {
   removeLandmarks(results, postureView);
 
@@ -106,7 +95,7 @@ const drawOnCanvas = (
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   if (results.segmentationMask) {
-    drawSegmentationMask(canvasCtx, results, canvasElement, activeEffect);
+    drawSegmentationMask(canvasCtx, results, canvasElement);
   } else {
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
   }

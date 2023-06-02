@@ -19,12 +19,17 @@ export const Label = ({ icon, text, tooltipId, tooltipText }: LabelProps) => {
   return (
     <>
       <label id="notification-label" className="label-with-icon">
-        <div id={tooltipId} className="notification-content">
+        <div
+          data-tooltip-id={tooltipId}
+          data-tooltip-content={tooltipText}
+          data-tooltip-place="top"
+          className="notification-content"
+        >
           {icon}
           <div id="notification-text">{text}</div>
         </div>
       </label>
-      <Tooltip data-tooltip-id={tooltipId} place="top" data-tooltip-variant="info" content={tooltipText} />
+      <Tooltip id={tooltipId} />
     </>
   );
 };

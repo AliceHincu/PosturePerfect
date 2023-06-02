@@ -11,10 +11,9 @@ const initialConfig: OptionMap = {
   modelComplexity: 1,
   smoothLandmarks: true,
   enableSegmentation: false,
-  smoothSegmentation: true,
+  smoothSegmentation: false,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5,
-  effect: "background",
 };
 
 export { config, initialConfig };

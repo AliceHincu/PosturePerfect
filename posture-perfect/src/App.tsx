@@ -7,11 +7,9 @@ import { store } from "./redux/store";
 
 function App() {
   return (
-    <Provider store={store}>
-      <div className="App">
-        <PoseAnalysis></PoseAnalysis>
-      </div>
-    </Provider>
+    <div className="App">
+      <PoseAnalysis></PoseAnalysis>
+    </div>
   );
 }
 

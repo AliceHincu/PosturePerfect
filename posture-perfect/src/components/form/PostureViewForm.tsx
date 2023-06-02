@@ -1,11 +1,10 @@
 import { DropdownPosteriorView } from "./dropdowns/DropdownPosteriorView";
-import { Dispatch, SetStateAction } from "react";
 import { PostureView } from "../../utils/posture-utils";
-import { useAppSelector } from "../../redux/hooks";
+import { Dispatch, SetStateAction } from "react";
 
 interface PostureViewFormProps {
-  // postureView: PostureView;
-  // setPostureView: Dispatch<SetStateAction<PostureView>>;
+  postureView: PostureView;
+  setPostureView: Dispatch<SetStateAction<PostureView>>;
   calibratePosture: any;
   startCorrection: boolean;
   startPostureCorrection: () => void;
@@ -19,16 +18,14 @@ interface PostureViewFormProps {
  * @returns
  */
 export const PostureViewForm = ({
-  // postureView,
-  // setPostureView,
+  postureView,
+  setPostureView,
   calibratePosture,
   startCorrection,
   startPostureCorrection,
   stopPostureCorrection,
   disableStart,
 }: PostureViewFormProps) => {
-  const postureView = useAppSelector((state) => state.posture.postureView);
-
   const handleClick = () => {
     if (startCorrection) {
       stopPostureCorrection();
@@ -40,8 +37,7 @@ export const PostureViewForm = ({
   return (
     <div className="form-content">
       <div className="card-title-top">Posture View</div>
-      {/* <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView> */}
-      <DropdownPosteriorView></DropdownPosteriorView>
+      <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
       {postureView === PostureView.ANTERIOR && (
         <button onClick={calibratePosture} disabled={startCorrection}>
           Calibrate Posture
@@ -50,7 +46,6 @@ export const PostureViewForm = ({
       <button onClick={handleClick} disabled={disableStart}>
         {startCorrection ? "Stop posture correction" : "Start posture correction"}
       </button>
-      {/* <button onClick={startPostureCorrection}>Start posture correction</button> */}
     </div>
   );
 };

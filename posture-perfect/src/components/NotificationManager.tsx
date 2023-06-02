@@ -91,7 +91,7 @@ export const canNotifyPosture = (
 
 /**
  * Send a notification to the user depending on the permissions
- * @param message
+ * @param {NotificationMessage} message break/water/posture alert
  */
 export const sendNotification = (message: NotificationMessage) => {
   // Check if the browser supports notifications
@@ -115,8 +115,8 @@ export const sendNotification = (message: NotificationMessage) => {
 };
 
 /**
- * Construnt and send the notification
- * @param message
+ * Construct and send the notification
+ * @param {NotificationMessage} message break/water/posture alert
  */
 const notify = (message: NotificationMessage) => {
   let icon = NotificationIcons[message];

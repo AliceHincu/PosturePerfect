@@ -100,21 +100,6 @@ const checkLateralPosture = (
 const ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
 const ALIGNMENT_EYES_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
 
-// const checkAnteriorAlignment = (
-//   currentLandmark1: any,
-//   currentLandmark2: any,
-//   calibLandmark1: any,
-//   calibLandmark2: any,
-//   threshold: number
-// ) => {
-//   // Calculate the current and calibrated distances
-//   const currentDist = findDistance(currentLandmark1.x, currentLandmark1.y, currentLandmark2.x, currentLandmark2.y);
-//   const calibDist = findDistance(calibLandmark1.x, calibLandmark1.y, calibLandmark2.x, calibLandmark2.y);
-
-//   // Check the alignment by comparing the current distance with the calibrated distance
-//   return Math.abs(currentDist - calibDist) < threshold;
-// };
-
 const checkAnteriorAlignment = (
   currentLandmark1: any,
   currentLandmark2: any,
