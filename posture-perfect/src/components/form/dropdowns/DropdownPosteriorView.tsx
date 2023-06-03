@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { setPostureView } from "../../../redux/features/posture/postureSlice";
 import { PostureView } from "../../../utils/posture-utils";
 
 interface DropdownPosteriorViewProps {

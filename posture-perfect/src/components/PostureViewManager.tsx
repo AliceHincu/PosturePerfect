@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { PostureView, doLandmarksExist } from "../utils/posture-utils";
 import { PostureViewForm } from "./form/PostureViewForm";
 import { POSE_INDEXES_ANTERIOR } from "../utils/canvas-utils";
-import { POSE_LANDMARKS } from "@mediapipe/holistic";
+import { POSE_LANDMARKS } from "@mediapipe/pose";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 
 interface PostureCorrectionProps {

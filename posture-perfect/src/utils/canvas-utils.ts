@@ -1,5 +1,5 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
-import { POSE_CONNECTIONS, POSE_LANDMARKS } from "@mediapipe/holistic";
+import { POSE_CONNECTIONS, POSE_LANDMARKS } from "@mediapipe/pose";
 import { PostureView } from "./posture-utils";
 
 // -- landmark indexes

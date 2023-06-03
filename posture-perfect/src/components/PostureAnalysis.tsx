@@ -1,11 +1,11 @@
-import { Holistic } from "@mediapipe/holistic";
 import { useEffect, useRef, useState } from "react";
+import { Pose } from "@mediapipe/pose";
 import { ControlPanel, FPS, SourcePicker } from "@mediapipe/control_utils";
 import { slider, toggle, text } from "../utils/control-factory";
 import { canvasDimensions } from "../utils/dimensions";
 import { Spinner } from "./ui/Spinner";
 import { drawOnCanvas } from "../utils/canvas-utils";
-import { config, initialConfig } from "../utils/holistic-utils";
+import { poseConfig, initialConfig } from "../utils/pose-utils";
 import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils/posture-utils";
 
 import { NotificationsForm } from "./form/NotificationsForm";
@@ -26,8 +26,8 @@ import Webcam from "react-webcam";
 
 export const PoseAnalysis = () => {
   // references for video capturing and drawing
-  const videoElement = useRef<HTMLVideoElement>(null);
   const webcamRef = useRef<Webcam>(null);
+  const [deviceId, setDeviceId] = useState(""); // for the webcamera component
   const canvasElement = useRef<HTMLCanvasElement>(null);
   const controlsElement = useRef<HTMLDivElement>(null);
 
@@ -109,13 +109,13 @@ export const PoseAnalysis = () => {
   };
 
   useEffect(() => {
-    if (canvasElement.current && controlsElement.current) {
+    if (canvasElement.current && controlsElement.current && webcamRef.current) {
       const canvasCtx: CanvasRenderingContext2D | null = canvasElement.current.getContext("2d");
       if (canvasCtx) {
         const fpsControl = new FPS();
 
-        const holistic = new Holistic(config);
-        holistic.onResults((results) => {
+        const pose = new Pose(poseConfig);
+        pose.onResults((results) => {
           setLoading(false);
           onResults(results, postureViewRef, startCorrectionRef, canvasCtx, canvasElement.current, fpsControl);
         });
@@ -128,31 +128,18 @@ export const PoseAnalysis = () => {
             toggle("Selfie Mode", "selfieMode"),
 
             new SourcePicker({
-              onSourceChanged: async (name: string) => {
-                // Resets because the pose gives better results when reset between source changes.
-                console.log(name);
-                holistic.reset();
-
-                // // Request a MediaStream from the new camera.
-                // const stream = await navigator.mediaDevices.getUserMedia({
-                //   video: {
-                //     deviceId: { exact: name },
-                //   },
-                // });
-
-                // // Assign the MediaStream to the video element and start playing the video.
-                // if (videoElement.current) {
-                //   videoElement.current.srcObject = stream;
-                //   videoElement.current.play();
-                // }
-              },
+              // onSourceChanged: async (name: string) => {
+              //   // Resets because the pose gives better results when reset between source changes.
+              //   setDeviceId(name);
+              //   holistic.reset();
+              // },
               onFrame: async (input, size) => {
                 const { width, height } = canvasDimensions(size);
                 if (canvasElement.current) {
                   canvasElement.current.width = width;
                   canvasElement.current.height = height;
                 }
-                await holistic.send({ image: input });
+                await pose.send({ image: input });
               },
             }),
             slider("Model Complexity", "modelComplexity", undefined, undefined, ["Lite", "Full", "Heavy"]),
@@ -165,9 +152,8 @@ export const PoseAnalysis = () => {
           .on((x) => {
             const options = x;
             //@ts-ignore
-            // videoElement.current.classList.toggle("selfie", options.selfieMode);
             setSelfieMode(options.selfieMode);
-            holistic.setOptions(options);
+            pose.setOptions(options);
           });
       }
     }
@@ -183,6 +169,7 @@ export const PoseAnalysis = () => {
     facingMode: "user",
     width: { min: 256 },
     height: { min: 144 },
+    deviceId: deviceId ? { exact: deviceId } : undefined,
   };
 
   useEffect(() => {
@@ -198,10 +185,6 @@ export const PoseAnalysis = () => {
         height = width / aspect;
       }
       setWebcamSize({ width, height });
-      // if (canvasElement.current) {
-      //   canvasElement.current.width = width;
-      //   canvasElement.current.height = height;
-      // }
     };
 
     window.addEventListener("resize", handleResize);
@@ -230,7 +213,13 @@ export const PoseAnalysis = () => {
       >
         <Webcam
           ref={webcamRef}
-          videoConstraints={videoConstraints}
+          videoConstraints={{
+            aspectRatio: 4 / 3, // 4:3
+            facingMode: "user",
+            width: { min: 256 },
+            height: { min: 144 },
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+          }}
           mirrored={selfieMode}
           width={webcamSize.width}
           height={webcamSize.height}
@@ -251,30 +240,23 @@ export const PoseAnalysis = () => {
         ></canvas>
       </div>
       <div className="container">
-        {/* <video ref={videoElement} className="input_video"></video> */}
-        {/* <div className="canvas-container">
-          <canvas ref={canvasElement} className="output_canvas" width="1280px" height="720px">
-            {" "}
-          </canvas>
-        </div> */}
         <Spinner loading={loading}></Spinner>
-        {/* <div className="card-top">
-          <PostureViewManager
-            postureView={postureView}
-            setPostureView={setPostureView}
-            startCorrection={startAnalysis}
-            setStartCorrection={setStartAnalysis}
-            calibPositions={calibPositions}
-            landmarks={landmarks}
-          ></PostureViewManager>
-        </div>
-
-        <div className="card-bottom">
-          <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
-          <NotificationManager notificationValues={notificationValues} />
-        </div> */}
       </div>
       <div ref={controlsElement} className="control-panel"></div>
+      <div className="card-top">
+        <PostureViewManager
+          postureView={postureView}
+          setPostureView={setPostureView}
+          startCorrection={startAnalysis}
+          setStartCorrection={setStartAnalysis}
+          calibPositions={calibPositions}
+          landmarks={landmarks}
+        ></PostureViewManager>
+      </div>
+      <div className="card-bottom">
+        <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
+        <NotificationManager notificationValues={notificationValues} />
+      </div>
     </div>
   );
 };

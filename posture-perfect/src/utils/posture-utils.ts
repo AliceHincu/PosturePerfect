@@ -1,4 +1,4 @@
-import { POSE_LANDMARKS } from "@mediapipe/holistic";
+import { POSE_LANDMARKS } from "@mediapipe/pose";
 import { findAngle, findDistance } from "./math-utils";
 import { POSE_INDEXES_LATERAL, POSE_INDEXES_ANTERIOR } from "./canvas-utils";
 
