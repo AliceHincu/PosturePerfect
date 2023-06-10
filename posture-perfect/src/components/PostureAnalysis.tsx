@@ -23,6 +23,7 @@ import { ToastManager } from "./ToastManager";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewManager } from "./PostureViewManager";
 import Webcam from "react-webcam";
+import { Modal } from "./modal/Modal";
 
 export const PoseAnalysis = () => {
   // references for video capturing and drawing
@@ -139,7 +140,9 @@ export const PoseAnalysis = () => {
                   canvasElement.current.width = width;
                   canvasElement.current.height = height;
                 }
-                await pose.send({ image: input });
+                if (pose) {
+                  await pose.send({ image: input });
+                }
               },
             }),
             slider("Model Complexity", "modelComplexity", undefined, undefined, ["Lite", "Full", "Heavy"]),
@@ -193,6 +196,25 @@ export const PoseAnalysis = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const customStyles = {
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+    },
+  };
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  function openModal() {
+    setIsOpen(true);
+  }
+  function closeModal() {
+    setIsOpen(false);
+  }
+
   return (
     <div>
       <ToastManager
@@ -221,6 +243,7 @@ export const PoseAnalysis = () => {
             deviceId: deviceId ? { exact: deviceId } : undefined,
           }}
           mirrored={selfieMode}
+          audio={false}
           width={webcamSize.width}
           height={webcamSize.height}
           style={{
@@ -252,11 +275,24 @@ export const PoseAnalysis = () => {
           calibPositions={calibPositions}
           landmarks={landmarks}
         ></PostureViewManager>
+        {/* <button onClick={openModal}>Open Modal</button> */}
       </div>
       <div className="card-bottom">
         <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
         <NotificationManager notificationValues={notificationValues} />
       </div>
+      {/* <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel="Example Modal">
+        <h2>Hello</h2>
+        <button onClick={closeModal}>close</button>
+        <div>I am a modal</div>
+        <form>
+          <input />
+          <button>tab navigation</button>
+          <button>stays</button>
+          <button>inside</button>
+          <button>the modal</button>
+        </form>
+      </Modal> */}
     </div>
   );
 };

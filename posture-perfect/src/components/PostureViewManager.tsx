@@ -85,14 +85,16 @@ export const PostureViewManager = (props: PostureCorrectionProps) => {
   };
 
   return (
-    <PostureViewForm
-      postureView={postureView}
-      setPostureView={setPostureView}
-      calibratePosture={handleCalibration}
-      startCorrection={startCorrection}
-      startPostureCorrection={startPostureCorrection}
-      stopPostureCorrection={stopPostureCorrection}
-      disableStart={!isCalibrationGood}
-    ></PostureViewForm>
+    <>
+      <PostureViewForm
+        postureView={postureView}
+        setPostureView={setPostureView}
+        calibratePosture={handleCalibration}
+        startCorrection={startCorrection}
+        startPostureCorrection={startPostureCorrection}
+        stopPostureCorrection={stopPostureCorrection}
+        disableStart={!isCalibrationGood}
+      ></PostureViewForm>
+    </>
   );
 };

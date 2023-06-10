@@ -72,7 +72,7 @@ body {
   top: 3%;
   width: 20%;
   min-width: 250px;
-  height: 20%;
+  height: 23%;
   box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
   border-radius: 8%;
   color: #fff;
@@ -109,7 +109,7 @@ body {
   box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
   border-radius: 8%;
   color: #fff;
-  z-index: 100;
+  z-index: 1;
   background-color: #222;
   display: flex;
   flex-direction: column;

@@ -1,6 +1,7 @@
 import { DropdownPosteriorView } from "./dropdowns/DropdownPosteriorView";
 import { PostureView } from "../../utils/posture-utils";
 import { Dispatch, SetStateAction } from "react";
+import { Modal } from "../modal/Modal";
 
 interface PostureViewFormProps {
   postureView: PostureView;
@@ -46,6 +47,7 @@ export const PostureViewForm = ({
       <button onClick={handleClick} disabled={disableStart}>
         {startCorrection ? "Stop posture correction" : "Start posture correction"}
       </button>
+      <Modal></Modal>
     </div>
   );
 };

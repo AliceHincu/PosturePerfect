@@ -1,0 +1,85 @@
+body.active-modal {
+  overflow-y: hidden;
+}
+
+.btn-modal {
+  padding: 10px 20px;
+  display: block;
+  margin: 100px auto 0;
+  font-size: 18px;
+}
+
+.modal,
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: fixed;
+}
+
+.overlay {
+  background: rgba(49, 49, 49, 0.8);
+}
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1.4;
+  background: #ffffff;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 3px;
+  max-width: 800px;
+  min-width: 700px;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* This will prevent the modal from going off the screen */
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2; /* Keep the header above the body content when scrolling */
+  background: #ffffff; /* Same color as modal-content */
+}
+
+.modal-body {
+  overflow-y: auto; /* Enable scrolling */
+  padding-top: 10px; /* Some space between header and body */
+  scroll-behavior: smooth;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: -5px;
+  padding: 5px 7px;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  cursor: pointer;
+}
+
+/* makes sure that the image will never exceed the width of its container and mantain aspect ratio */
+.modal-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.big-list li {
+  color: #0075ff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.big-list li span {
+  color: black;
+}
+
+.small-list li {
+  color: black;
+  font-size: 1rem;
+  font-weight: 500;
+}
