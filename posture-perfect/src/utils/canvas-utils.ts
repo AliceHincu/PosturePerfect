@@ -22,6 +22,7 @@ const indicesToRemoveAnterior = allIndices.filter((index) => !POSE_INDEXES_ANTER
 const LEFT_COLOR = "rgb(0,217,231)";
 const RIGHT_COLOR = "rgb(255,138,0)";
 const NOSE_COLOR = "white";
+const WRONG_COLOR = "red";
 
 /**
  * Remove given elements from object
@@ -87,7 +88,8 @@ const drawOnCanvas = (
   results: any,
   postureView: PostureView,
   canvasCtx: CanvasRenderingContext2D,
-  canvasElement: any
+  canvasElement: any,
+  isPostureCorrect: boolean
 ) => {
   removeLandmarks(results, postureView);
 
@@ -101,16 +103,31 @@ const drawOnCanvas = (
   }
 
   // Pose...
-  drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
-    color: "white",
-  });
-  if (postureView === PostureView.LATERAL) {
-    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_RIGHT, results.poseLandmarks, RIGHT_COLOR);
-    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_LEFT, results.poseLandmarks, LEFT_COLOR);
+  if (!isPostureCorrect) {
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+      color: WRONG_COLOR,
+    });
   } else {
-    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_RIGHT, results.poseLandmarks, RIGHT_COLOR);
-    drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_LEFT, results.poseLandmarks, LEFT_COLOR);
-    drawLandmarksOnCanvas(canvasCtx, [POSE_LANDMARKS.NOSE], results.poseLandmarks, NOSE_COLOR);
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+      color: "white",
+    });
+  }
+
+  if (postureView === PostureView.LATERAL) {
+    if (!isPostureCorrect) {
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL, results.poseLandmarks, WRONG_COLOR);
+    } else {
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_RIGHT, results.poseLandmarks, RIGHT_COLOR);
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_LATERAL_LEFT, results.poseLandmarks, LEFT_COLOR);
+    }
+  } else {
+    if (!isPostureCorrect) {
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR, results.poseLandmarks, WRONG_COLOR);
+    } else {
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_RIGHT, results.poseLandmarks, RIGHT_COLOR);
+      drawLandmarksOnCanvas(canvasCtx, POSE_INDEXES_ANTERIOR_LEFT, results.poseLandmarks, LEFT_COLOR);
+      drawLandmarksOnCanvas(canvasCtx, [POSE_LANDMARKS.NOSE], results.poseLandmarks, NOSE_COLOR);
+    }
   }
 
   canvasCtx.restore();

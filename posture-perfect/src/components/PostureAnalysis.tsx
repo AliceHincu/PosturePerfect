@@ -37,10 +37,31 @@ export const PoseAnalysis = () => {
   let badFrames = 0;
 
   // Update the ref whenever startCorrection changes
+  const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
+  const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
   const [startAnalysis, setStartAnalysis] = useState(false);
-  const startCorrectionRef = useRef(startAnalysis);
+  const correctionRef = useRef({
+    isLateralPosCorrect: isLateralPosCorrect,
+    isAnteriorPosCorrect: isAnteriorPosCorrect,
+    startAnalysis: startAnalysis,
+  });
+
+  const setLateralPosition = (value: boolean) => {
+    setIsLateralPosCorrect(value);
+    correctionRef.current.isLateralPosCorrect = value;
+  };
+  const setAnteriorPosition = (value: boolean) => {
+    setIsAnteriorPosCorrect(value);
+    correctionRef.current.isAnteriorPosCorrect = value;
+  };
+
   useEffect(() => {
-    startCorrectionRef.current = startAnalysis; // to always have the latest value for onResults
+    correctionRef.current.startAnalysis = startAnalysis; // to always have the latest value for onResults
+    if (postureView == PostureView.LATERAL) {
+      setLateralPosition(startAnalysis);
+    } else {
+      setAnteriorPosition(startAnalysis);
+    }
   }, [startAnalysis]);
 
   // Update the ref whenever postureView changes
@@ -59,33 +80,59 @@ export const PoseAnalysis = () => {
     rightEye: any;
   }>({ leftShoulder: null, rightShoulder: null, leftEye: null, rightEye: null });
 
+  // landmarks
   const landmarks = useRef<any>(null);
-  const [isLateralPosCorrect, setIsLateralPosCorrect] = useState(false);
-  const [isAnteriorPosCorrect, setIsAnteriorPosCorrect] = useState(false);
   const [landmarksVisible, setLandmarksVisible] = useState(true);
+  const drawLandmarks = (
+    results: any,
+    postureView: PostureView,
+    correctionRef: any,
+    canvasCtx: CanvasRenderingContext2D,
+    canvasElement: any
+  ) => {
+    if (postureView === PostureView.LATERAL) {
+      drawOnCanvas(
+        results,
+        postureViewRef.current,
+        canvasCtx,
+        canvasElement,
+        correctionRef.current.isLateralPosCorrect
+      );
+    } else {
+      drawOnCanvas(
+        results,
+        postureViewRef.current,
+        canvasCtx,
+        canvasElement,
+        correctionRef.current.isAnteriorPosCorrect
+      );
+    }
+  };
 
+  // camera stuff
   const [webcamSize, setWebcamSize] = useState({ width: 1280, height: 720 });
   const [selfieMode, setSelfieMode] = useState(true);
 
+  // ========================
   const onResults = (
     results: any,
     postureViewRef: any,
-    startCorrectionRef: any,
+    correctionRef: any,
     canvasCtx: CanvasRenderingContext2D,
     canvasElement: any,
     fpsControl: any
   ) => {
     fpsControl.tick(); // Update the frame rate.
     landmarks.current = results.poseLandmarks;
-    drawOnCanvas(results, postureViewRef.current, canvasCtx, canvasElement);
+    drawLandmarks(results, postureViewRef.current, correctionRef, canvasCtx, canvasElement);
 
-    if (startCorrectionRef.current) {
-      if (postureView === PostureView.LATERAL) {
+    if (correctionRef.current.startAnalysis) {
+      if (postureViewRef.current === PostureView.LATERAL) {
         if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosCorrect, setLandmarksVisible)) {
           // handleBadPosture();
         }
       } else {
-        if (!checkAnteriorPosture(results, calibPositions, setIsAnteriorPosCorrect, setLandmarksVisible)) {
+        if (!checkAnteriorPosture(results, calibPositions, setAnteriorPosition, setLandmarksVisible)) {
           if (canNotifyPosture(lastNotificationTime, notificationValues)) {
             sendNotification(NotificationMessage.POSTURE_ALERT);
           }
@@ -103,7 +150,7 @@ export const PoseAnalysis = () => {
         const pose = new Pose(poseConfig);
         pose.onResults((results) => {
           setLoading(false);
-          onResults(results, postureViewRef, startCorrectionRef, canvasCtx, canvasElement.current, fpsControl);
+          onResults(results, postureViewRef, correctionRef, canvasCtx, canvasElement.current, fpsControl);
         });
 
         // Present a control panel through which the user can manipulate the solution options.

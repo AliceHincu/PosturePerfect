@@ -133,7 +133,7 @@ const checkIfPersonIsTurned = (
 const checkAnteriorPosture = (
   results: any,
   calibPositions: any,
-  setIsAnteriorPosCorrect: any,
+  setAnteriorPosition: any,
   setLandmarksVisible: any
 ) => {
   const lmPose = results.poseLandmarks;
@@ -148,6 +148,7 @@ const checkAnteriorPosture = (
     const head = lmPose[POSE_LANDMARKS.NOSE];
 
     const isHeadTurned = checkIfPersonIsTurned(head, leftShoulder, rightShoulder, 0.05);
+
     // check alignment based on the calibrated positions
     const shoulderAlignment = checkAnteriorAlignment(
       leftShoulder,
@@ -166,10 +167,10 @@ const checkAnteriorPosture = (
 
     if (!isHeadTurned) {
       if (eyeAlignment && shoulderAlignment) {
-        setIsAnteriorPosCorrect(true);
+        setAnteriorPosition(true);
         return true;
       } else {
-        setIsAnteriorPosCorrect(false);
+        setAnteriorPosition(false);
       }
     }
   } else {
