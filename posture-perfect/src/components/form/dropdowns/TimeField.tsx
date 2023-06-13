@@ -1,10 +1,12 @@
 import { ErrorMessage, Field, useFormikContext } from "formik";
 import * as Yup from "yup";
 import "./TimeField.css";
+import { NotificationValues } from "../../NotificationManager";
 
 interface TimeFieldProps {
-  timeValueName: string;
-  timeUnitName: string;
+  timeValueName: keyof NotificationValues;
+  timeUnitName: keyof NotificationValues;
+  checkboxName: keyof NotificationValues;
 }
 
 export const SECOND = "1";
@@ -16,23 +18,28 @@ export const HOUR_TO_SECONDS = "3600";
  * - The left field represents the number of time units that the user wants.
  * - The right field represents what time unit is used.
  * - An error message will appear below if the inputs are invalid
- * @param timeValueName - number of units
- * @param timeUnitName - type of unit (second/minute/hour)
+ * @param {string} timeValueName - number of units
+ * @param {string} timeUnitName - type of unit (second/minute/hour)
+ * @param {string} checkboxName - check if you want to receive notifications of certain type or not
  * @returns
  */
-export const TimeField = ({ timeValueName, timeUnitName }: TimeFieldProps) => {
-  const { errors } = useFormikContext();
+export const TimeField = ({ timeValueName, timeUnitName, checkboxName }: TimeFieldProps) => {
+  const { errors, values } = useFormikContext<NotificationValues>();
   const cssClassName = "time-field " + (errors[timeValueName as keyof typeof errors] ? "error-outline" : "");
 
   return (
     <div className="form-col">
       <div className="form-row">
-        <Field name={timeValueName} type="number" className={cssClassName} />
-        <Field as="select" name={timeUnitName} className="time-field">
+        <Field name={timeValueName} type="number" className={cssClassName} disabled={!values[checkboxName]} />
+        <Field as="select" name={timeUnitName} className="time-field pointer" disabled={!values[checkboxName]}>
           <option value={HOUR_TO_SECONDS}>hours</option>
           <option value={MINUTE_TO_SECONDS}>minutes</option>
           <option value={SECOND}>seconds</option>
         </Field>
+        <div className="notify-wrapper">
+          <Field name={checkboxName} type="checkbox" className="pointer"></Field>
+          <span>Notify</span>
+        </div>
       </div>
       <ErrorMessage name={timeValueName} component="div" className="error-text" />
     </div>

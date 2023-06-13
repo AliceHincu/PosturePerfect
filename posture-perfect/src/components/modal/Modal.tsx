@@ -18,12 +18,12 @@ export const Modal = () => {
   if (isOpen) {
     document.body.classList.add("active-modal");
   } else {
-    document.body.classList.add("active-modal");
+    document.body.classList.remove("active-modal");
   }
 
   return (
     <>
-      <button onClick={toggleModal}>Open Modal</button>
+      <button onClick={toggleModal}>Show Ergonomics Info</button>
 
       {isOpen && (
         <div className="modal">

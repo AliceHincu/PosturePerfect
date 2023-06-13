@@ -9,6 +9,10 @@ body.active-modal {
   font-size: 18px;
 }
 
+.modal {
+  z-index: 3;
+}
+
 .modal,
 .overlay {
   width: 100vw;
@@ -22,6 +26,7 @@ body.active-modal {
 
 .overlay {
   background: rgba(49, 49, 49, 0.8);
+  z-index: inherit;
 }
 .modal-content {
   position: absolute;
@@ -38,6 +43,7 @@ body.active-modal {
   display: flex;
   flex-direction: column;
   max-height: 90vh; /* This will prevent the modal from going off the screen */
+  z-index: inherit;
 }
 
 .modal-header {

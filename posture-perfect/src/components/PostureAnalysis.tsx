@@ -24,6 +24,7 @@ import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewManager } from "./PostureViewManager";
 import Webcam from "react-webcam";
 import { Modal } from "./modal/Modal";
+import { Tooltip } from "react-tooltip";
 
 export const PoseAnalysis = () => {
   // references for video capturing and drawing
@@ -37,12 +38,15 @@ export const PoseAnalysis = () => {
 
   // notifications
   const initialValues: NotificationValues = {
-    timeValuePosture: 5,
+    timeValuePosture: 15,
     timeUnitPosture: 1,
-    timeValueBreak: 30,
+    checkboxPosture: true,
+    timeValueBreak: 20,
     timeUnitBreak: +MINUTE_TO_SECONDS,
+    checkboxBreak: true,
     timeValueWater: 30,
     timeUnitWater: +MINUTE_TO_SECONDS,
+    checkboxWater: true,
   };
   const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialValues);
   const lastNotificationTime = useRef<Date | null>(null);
@@ -275,24 +279,11 @@ export const PoseAnalysis = () => {
           calibPositions={calibPositions}
           landmarks={landmarks}
         ></PostureViewManager>
-        {/* <button onClick={openModal}>Open Modal</button> */}
       </div>
       <div className="card-bottom">
         <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
         <NotificationManager notificationValues={notificationValues} />
       </div>
-      {/* <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel="Example Modal">
-        <h2>Hello</h2>
-        <button onClick={closeModal}>close</button>
-        <div>I am a modal</div>
-        <form>
-          <input />
-          <button>tab navigation</button>
-          <button>stays</button>
-          <button>inside</button>
-          <button>the modal</button>
-        </form>
-      </Modal> */}
     </div>
   );
 };

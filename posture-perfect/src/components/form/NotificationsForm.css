@@ -19,10 +19,22 @@ form button {
 }
 
 form button {
-  background-color: #ffffff;
-  color: #222;
+  background-color: transparent;
+  color: #fff;
   cursor: pointer;
+  border: 1px solid #fff;
   align-self: flex-end;
+  font-family: Arial, sans-serif; /* Adjust according to your preference */
+  padding: 0.5em;
+  border-radius: 5px;
+  width: 100%;
+
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* optional */
+}
+
+form button:hover {
+  background-color: white;
+  color: black;
 }
 
 .form-content {

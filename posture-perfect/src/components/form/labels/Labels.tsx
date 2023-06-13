@@ -8,7 +8,7 @@ export const AlertLabel = () => {
       icon={<TbAlertTriangleFilled color="#d32f50" />}
       text="Alert Notification"
       tooltipId="Alert"
-      tooltipText="Hello world! I'm a Tooltip"
+      tooltipText="If your posture remains improper for a certain duration, you can set the interval between each notification"
     ></Label>
   );
 };
@@ -19,7 +19,7 @@ export const WaterLabel = () => {
       icon={<GiWaterDrop color="#0075ff" />}
       text="Water Notification"
       tooltipId="Water"
-      tooltipText="Hello world! I'm a Tooltip"
+      tooltipText="While hydration needs can vary based on individual factors, a general guideline for desk workers is to have a sip of water about every 15 to 30 minutes."
     ></Label>
   );
 };
@@ -30,7 +30,7 @@ export const BreakTimeLabel = () => {
       icon={<GiMuscleUp color="#309f93" />}
       text="Break-time Notification"
       tooltipId="Break"
-      tooltipText="Hello world! I'm a Tooltip"
+      tooltipText="Between possible strategies that can be implemented to mitigate posture problems, a recommendation is the '20-20-20 rule': taking a 20-second break to view something 20 feet away every 20 minutes."
     ></Label>
   );
 };

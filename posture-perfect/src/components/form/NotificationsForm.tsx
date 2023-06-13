@@ -4,6 +4,7 @@ import { TimeField } from "./dropdowns/TimeField";
 import { createTimeFieldValidationSchema } from "./dropdowns/TimeField";
 import "./NotificationsForm.css";
 import { NotificationValues } from "../NotificationManager";
+import { TitleNotifications } from "./labels/Label";
 
 interface NotificationsFormProps {
   initialValues: NotificationValues;
@@ -26,16 +27,28 @@ export const NotificationsForm = ({ initialValues, handleFormSubmit }: Notificat
     >
       <Form>
         <div className="form-content">
-          <h2 className="card-title">Notifications</h2>
+          <TitleNotifications></TitleNotifications>
 
           <AlertLabel></AlertLabel>
-          <TimeField timeValueName="timeValuePosture" timeUnitName="timeUnitPosture"></TimeField>
+          <TimeField
+            timeValueName="timeValuePosture"
+            timeUnitName="timeUnitPosture"
+            checkboxName="checkboxPosture"
+          ></TimeField>
 
           <BreakTimeLabel></BreakTimeLabel>
-          <TimeField timeValueName="timeValueBreak" timeUnitName="timeUnitBreak"></TimeField>
+          <TimeField
+            timeValueName="timeValueBreak"
+            timeUnitName="timeUnitBreak"
+            checkboxName="checkboxBreak"
+          ></TimeField>
 
           <WaterLabel></WaterLabel>
-          <TimeField timeValueName="timeValueWater" timeUnitName="timeUnitWater"></TimeField>
+          <TimeField
+            timeValueName="timeValueWater"
+            timeUnitName="timeUnitWater"
+            checkboxName="checkboxWater"
+          ></TimeField>
         </div>
 
         <button type="submit">Submit</button>

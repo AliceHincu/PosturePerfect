@@ -15,10 +15,13 @@ const NotificationIcons: Record<NotificationMessage, string> = {
 export interface NotificationValues {
   timeValuePosture: number;
   timeUnitPosture: number;
+  checkboxPosture: boolean;
   timeValueBreak: number;
   timeUnitBreak: number;
+  checkboxBreak: boolean;
   timeValueWater: number;
   timeUnitWater: number;
+  checkboxWater: boolean;
 }
 
 interface NotificationManagerProps {
@@ -38,17 +41,25 @@ export const NotificationManager = ({ notificationValues }: NotificationManagerP
   }>({});
 
   useEffect(() => {
-    // new break notification interval
+    // clear old intervals
     intervalIds.break && clearInterval(intervalIds.break);
     intervalIds.water && clearInterval(intervalIds.water);
 
-    const idBreak = setInterval(() => {
-      sendNotification(NotificationMessage.BREAK_ALERT);
-    }, notificationValues.timeValueBreak * notificationValues.timeUnitBreak * 1000);
-    const idWater = setInterval(() => {
-      sendNotification(NotificationMessage.WATER_ALERT);
-    }, notificationValues.timeValueWater * notificationValues.timeUnitWater * 1000);
+    // new break notification interval
+    let idBreak: any;
+    let idWater: any;
 
+    // only if the user wants to receive the notifications the interval will change
+    if (notificationValues.checkboxBreak) {
+      idBreak = setInterval(() => {
+        sendNotification(NotificationMessage.BREAK_ALERT);
+      }, notificationValues.timeValueBreak * notificationValues.timeUnitBreak * 1000);
+    }
+    if (notificationValues.checkboxWater) {
+      idWater = setInterval(() => {
+        sendNotification(NotificationMessage.WATER_ALERT);
+      }, notificationValues.timeValueWater * notificationValues.timeUnitWater * 1000);
+    }
     setIntervalIds({ break: idBreak, water: idWater });
 
     return () => {
@@ -58,8 +69,10 @@ export const NotificationManager = ({ notificationValues }: NotificationManagerP
   }, [
     notificationValues.timeValueBreak,
     notificationValues.timeUnitBreak,
+    notificationValues.checkboxBreak,
     notificationValues.timeValueWater,
     notificationValues.timeUnitWater,
+    notificationValues.checkboxWater,
   ]);
 
   return null;

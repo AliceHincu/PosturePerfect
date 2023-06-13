@@ -39,3 +39,12 @@
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */
 }
+
+.notify-wrapper {
+  display: flex;
+  align-items: center; /* This will vertically align checkbox and "Notify" text */
+}
+
+.pointer {
+  cursor: pointer;
+}

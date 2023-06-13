@@ -1,4 +1,5 @@
 import { Tooltip } from "react-tooltip";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 import "./Label.css";
 
 interface LabelProps {
@@ -27,9 +28,31 @@ export const Label = ({ icon, text, tooltipId, tooltipText }: LabelProps) => {
         >
           {icon}
           <div id="notification-text">{text}</div>
+          <AiOutlineInfoCircle color="white" />
         </div>
       </label>
-      <Tooltip id={tooltipId} />
+      <Tooltip id={tooltipId} style={{ width: "300px" }} />
+    </>
+  );
+};
+
+const titleText =
+  "You have the ability to establish alerts at intervals ranging from X to X <time_unit> to remind you to correct your posture, drink water or take a break.";
+export const TitleNotifications = () => {
+  return (
+    <>
+      <div className="label-with-icon">
+        <h2
+          data-tooltip-id="notifications-title"
+          data-tooltip-content={titleText}
+          data-tooltip-place="top"
+          className="card-title"
+        >
+          Notifications {"\u00A0"}
+          {"\u00A0"} <AiOutlineInfoCircle color="white" />
+        </h2>
+      </div>
+      <Tooltip id="notifications-title" style={{ width: "300px" }} />
     </>
   );
 };
