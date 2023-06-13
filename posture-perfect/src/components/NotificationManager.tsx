@@ -1,28 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-
-export enum NotificationMessage {
-  BREAK_ALERT = "Break Alert",
-  WATER_ALERT = "Water Alert",
-  POSTURE_ALERT = "Posture Alert",
-}
-
-const NotificationIcons: Record<NotificationMessage, string> = {
-  [NotificationMessage.BREAK_ALERT]: "notification-icons/break.svg",
-  [NotificationMessage.WATER_ALERT]: "notification-icons/water.svg",
-  [NotificationMessage.POSTURE_ALERT]: "notification-icons/posture.svg",
-};
-
-export interface NotificationValues {
-  timeValuePosture: number;
-  timeUnitPosture: number;
-  checkboxPosture: boolean;
-  timeValueBreak: number;
-  timeUnitBreak: number;
-  checkboxBreak: boolean;
-  timeValueWater: number;
-  timeUnitWater: number;
-  checkboxWater: boolean;
-}
+import { useState, useEffect } from "react";
+import { NotificationMessage, NotificationValues, notify } from "../utils/notifications-utils";
 
 interface NotificationManagerProps {
   notificationValues: NotificationValues;
@@ -88,6 +65,10 @@ export const canNotifyPosture = (
   lastNotificationTime: React.MutableRefObject<Date | null>,
   notificationValues: NotificationValues
 ) => {
+  if (!notificationValues.checkboxPosture) {
+    return false;
+  }
+
   const minimumIntervalTime = notificationValues.timeValuePosture * notificationValues.timeUnitPosture * 1000;
   const currentTime = new Date();
 
@@ -125,14 +106,4 @@ export const sendNotification = (message: NotificationMessage) => {
       }
     });
   }
-};
-
-/**
- * Construct and send the notification
- * @param {NotificationMessage} message break/water/posture alert
- */
-const notify = (message: NotificationMessage) => {
-  let icon = NotificationIcons[message];
-  const options = icon ? { icon } : {};
-  new Notification(message, options);
 };

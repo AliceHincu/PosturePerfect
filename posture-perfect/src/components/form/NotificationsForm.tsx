@@ -3,11 +3,10 @@ import { AlertLabel, BreakTimeLabel, WaterLabel } from "./labels/Labels";
 import { TimeField } from "./dropdowns/TimeField";
 import { createTimeFieldValidationSchema } from "./dropdowns/TimeField";
 import "./NotificationsForm.css";
-import { NotificationValues } from "../NotificationManager";
 import { TitleNotifications } from "./labels/Label";
+import { NotificationValues, initialNotificationValues } from "../../utils/notifications-utils";
 
 interface NotificationsFormProps {
-  initialValues: NotificationValues;
   handleFormSubmit: (values: NotificationValues) => void;
 }
 
@@ -16,10 +15,10 @@ interface NotificationsFormProps {
  * @param param0
  * @returns
  */
-export const NotificationsForm = ({ initialValues, handleFormSubmit }: NotificationsFormProps) => {
+export const NotificationsForm = ({ handleFormSubmit }: NotificationsFormProps) => {
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={initialNotificationValues}
       validationSchema={createTimeFieldValidationSchema("timeValuePosture", "timeUnitPosture")
         .concat(createTimeFieldValidationSchema("timeValueBreak", "timeUnitBreak"))
         .concat(createTimeFieldValidationSchema("timeValueWater", "timeUnitWater"))}

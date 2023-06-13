@@ -1,17 +1,13 @@
 import { ErrorMessage, Field, useFormikContext } from "formik";
 import * as Yup from "yup";
 import "./TimeField.css";
-import { NotificationValues } from "../../NotificationManager";
+import { HOUR_TO_SECONDS, MINUTE_TO_SECONDS, NotificationValues, SECOND } from "../../../utils/notifications-utils";
 
 interface TimeFieldProps {
   timeValueName: keyof NotificationValues;
   timeUnitName: keyof NotificationValues;
   checkboxName: keyof NotificationValues;
 }
-
-export const SECOND = "1";
-export const MINUTE_TO_SECONDS = "60";
-export const HOUR_TO_SECONDS = "3600";
 
 /**
  * Component for user to input the interval of time between notifications.

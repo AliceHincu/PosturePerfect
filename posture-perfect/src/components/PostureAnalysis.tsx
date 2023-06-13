@@ -9,22 +9,14 @@ import { poseConfig, initialConfig } from "../utils/pose-utils";
 import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils/posture-utils";
 
 import { NotificationsForm } from "./form/NotificationsForm";
-import {
-  NotificationManager,
-  NotificationMessage,
-  NotificationValues,
-  canNotifyPosture,
-  sendNotification,
-} from "./NotificationManager";
-import { MINUTE_TO_SECONDS } from "./form/dropdowns/TimeField";
+import { NotificationManager, canNotifyPosture, sendNotification } from "./NotificationManager";
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastManager } from "./ToastManager";
 import { ToastMessages, ToastType, generateToast } from "./ui/Toast";
 import { PostureViewManager } from "./PostureViewManager";
 import Webcam from "react-webcam";
-import { Modal } from "./modal/Modal";
-import { Tooltip } from "react-tooltip";
+import { NotificationMessage, NotificationValues, initialNotificationValues } from "../utils/notifications-utils";
 
 export const PoseAnalysis = () => {
   // references for video capturing and drawing
@@ -37,18 +29,7 @@ export const PoseAnalysis = () => {
   const [loading, setLoading] = useState(true);
 
   // notifications
-  const initialValues: NotificationValues = {
-    timeValuePosture: 15,
-    timeUnitPosture: 1,
-    checkboxPosture: true,
-    timeValueBreak: 20,
-    timeUnitBreak: +MINUTE_TO_SECONDS,
-    checkboxBreak: true,
-    timeValueWater: 30,
-    timeUnitWater: +MINUTE_TO_SECONDS,
-    checkboxWater: true,
-  };
-  const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialValues);
+  const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialNotificationValues);
   const lastNotificationTime = useRef<Date | null>(null);
 
   // score
@@ -128,7 +109,7 @@ export const PoseAnalysis = () => {
         // Present a control panel through which the user can manipulate the solution options.
         new ControlPanel(controlsElement.current, initialConfig)
           .add([
-            text("MediaPipe Holistic"),
+            text("MediaPipe Pose"),
             fpsControl,
             toggle("Selfie Mode", "selfieMode"),
 
@@ -200,25 +181,6 @@ export const PoseAnalysis = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const customStyles = {
-    content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      marginRight: "-50%",
-      transform: "translate(-50%, -50%)",
-    },
-  };
-  const [modalIsOpen, setIsOpen] = useState(false);
-
-  function openModal() {
-    setIsOpen(true);
-  }
-  function closeModal() {
-    setIsOpen(false);
-  }
-
   return (
     <div>
       <ToastManager
@@ -281,7 +243,7 @@ export const PoseAnalysis = () => {
         ></PostureViewManager>
       </div>
       <div className="card-bottom">
-        <NotificationsForm initialValues={initialValues} handleFormSubmit={handleFormSubmit}></NotificationsForm>
+        <NotificationsForm handleFormSubmit={handleFormSubmit}></NotificationsForm>
         <NotificationManager notificationValues={notificationValues} />
       </div>
     </div>
