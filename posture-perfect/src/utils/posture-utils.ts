@@ -7,6 +7,23 @@ enum PostureView {
   LATERAL = "lateral",
 }
 
+// Define initial thresholds
+export interface Thresholds {
+  OFFSET_THRESHOLD: number;
+  NECK_INCLINATION_THRESHOLD: number;
+  TORSO_INCLINATION_THRESHOLD: number;
+  ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR: number;
+  ALIGNMENT_EYES_THRESHOLD_ANTERIOR: number;
+}
+
+export const initialThresholds: Thresholds = {
+  OFFSET_THRESHOLD: 0.2,
+  NECK_INCLINATION_THRESHOLD: 15,
+  TORSO_INCLINATION_THRESHOLD: 1.5,
+  ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR: 0.025,
+  ALIGNMENT_EYES_THRESHOLD_ANTERIOR: 0.025,
+};
+
 // -- thresholds
 const OFFSET_THRESHOLD = 0.2;
 const NECK_INCLINATION_THRESHOLD = 15;
@@ -35,7 +52,7 @@ export const doLandmarksExist = (obj: any, keys: any[]): boolean => {
  * @param rightShoulder
  * @returns
  */
-const checkLateralCameraAlignment = (leftShoulder: any, rightShoulder: any) => {
+const checkLateralCameraAlignment = (leftShoulder: any, rightShoulder: any, OFFSET_THRESHOLD: number) => {
   const offset = findDistance(leftShoulder.x, leftShoulder.y, rightShoulder.x, rightShoulder.y);
   return offset > OFFSET_THRESHOLD ? false : true;
 };
@@ -47,12 +64,17 @@ const checkLateralCameraAlignment = (leftShoulder: any, rightShoulder: any) => {
  * @param setAreLandmarksVisible - set it to true if the whole posture (meaning the landmarks needed) is captured by the camera
  * @returns {boolean} true if the position is valid.
  */
-const validateLateralCameraView = (lmPose: any, setIsLateralPositionGood: any, setAreLandmarksVisible: any) => {
+const validateLateralCameraView = (
+  lmPose: any,
+  setIsLateralPositionGood: any,
+  setAreLandmarksVisible: any,
+  OFFSET_THRESHOLD: number
+) => {
   if (doLandmarksExist(lmPose, POSE_INDEXES_LATERAL)) {
     setAreLandmarksVisible(true);
     const leftShoulder = lmPose[POSE_LANDMARKS.LEFT_SHOULDER];
     const rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
-    if (checkLateralCameraAlignment(leftShoulder, rightShoulder)) {
+    if (checkLateralCameraAlignment(leftShoulder, rightShoulder, OFFSET_THRESHOLD)) {
       setIsLateralPositionGood(true);
     } else {
       setIsLateralPositionGood(false);
@@ -70,12 +92,20 @@ const checkLateralPosture = (
   goodFrames: number,
   badFrames: number,
   results: any,
+  thresholdsRef: any,
   setIsLateralPositionGood: any,
   setAreLandmarksVisible: any
 ) => {
   const lmPose = results.poseLandmarks;
 
-  if (validateLateralCameraView(lmPose, setIsLateralPositionGood, setAreLandmarksVisible)) {
+  if (
+    validateLateralCameraView(
+      lmPose,
+      setIsLateralPositionGood,
+      setAreLandmarksVisible,
+      thresholdsRef.current.OFFSET_THRESHOLD
+    )
+  ) {
     const leftShoulder = lmPose[POSE_LANDMARKS.LEFT_SHOULDER];
     const rightShoulder = lmPose[POSE_LANDMARKS.RIGHT_SHOULDER];
     const leftEar = lmPose[POSE_LANDMARKS.LEFT_EAR];
@@ -87,8 +117,10 @@ const checkLateralPosture = (
     const neckInclination = findAngle(leftShoulder.x, leftShoulder.y, leftEar.x, leftEar.y);
     const torsoInclination = findAngle(leftHip.x, leftHip.y, leftShoulder.x, leftShoulder.y);
 
-    console.log("neck: ", neckInclination, " --- torso:", torsoInclination);
-    if (neckInclination < NECK_INCLINATION_THRESHOLD && torsoInclination < TORSO_INCLINATION_THRESHOLD) {
+    if (
+      neckInclination < thresholdsRef.current.NECK_INCLINATION_THRESHOLD &&
+      torsoInclination < thresholdsRef.current.TORSO_INCLINATION_THRESHOLD
+    ) {
       return true;
     }
   }
@@ -96,9 +128,6 @@ const checkLateralPosture = (
 };
 
 /// ============================================================
-
-const ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
-const ALIGNMENT_EYES_THRESHOLD_ANTERIOR = 0.025; // Tolerance value, adjust as necessary
 
 const checkAnteriorAlignment = (
   currentLandmark1: any,
@@ -133,6 +162,7 @@ const checkIfPersonIsTurned = (
 const checkAnteriorPosture = (
   results: any,
   calibPositions: any,
+  thresholdsRef: any,
   setAnteriorPosition: any,
   setLandmarksVisible: any
 ) => {
@@ -150,19 +180,20 @@ const checkAnteriorPosture = (
     const isHeadTurned = checkIfPersonIsTurned(head, leftShoulder, rightShoulder, 0.05);
 
     // check alignment based on the calibrated positions
+    console.log(thresholdsRef.current.ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR);
     const shoulderAlignment = checkAnteriorAlignment(
       leftShoulder,
       rightShoulder,
       calibPositions.current.leftShoulder,
       calibPositions.current.rightShoulder,
-      ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR
+      thresholdsRef.current.ALIGNMENT_SHOULDERS_THRESHOLD_ANTERIOR
     );
     const eyeAlignment = checkAnteriorAlignment(
       leftEye,
       rightEye,
       calibPositions.current.leftEye,
       calibPositions.current.rightEye,
-      ALIGNMENT_EYES_THRESHOLD_ANTERIOR
+      thresholdsRef.current.ALIGNMENT_EYES_THRESHOLD_ANTERIOR
     );
 
     if (!isHeadTurned) {

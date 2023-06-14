@@ -23,7 +23,9 @@ export const Modal = () => {
 
   return (
     <>
-      <button onClick={toggleModal}>Show Ergonomics Info</button>
+      <button onClick={toggleModal} className="modal-button">
+        Show Ergonomics Info
+      </button>
 
       {isOpen && (
         <div className="modal">

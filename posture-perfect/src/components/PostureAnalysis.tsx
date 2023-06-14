@@ -6,7 +6,13 @@ import { canvasDimensions } from "../utils/dimensions";
 import { Spinner } from "./ui/Spinner";
 import { drawOnCanvas } from "../utils/canvas-utils";
 import { poseConfig, initialConfig } from "../utils/pose-utils";
-import { PostureView, checkAnteriorPosture, checkLateralPosture } from "../utils/posture-utils";
+import {
+  Thresholds,
+  PostureView,
+  checkAnteriorPosture,
+  checkLateralPosture,
+  initialThresholds,
+} from "../utils/posture-utils";
 
 import { NotificationsForm } from "./form/NotificationsForm";
 import { NotificationManager, canNotifyPosture, sendNotification } from "./NotificationManager";
@@ -80,6 +86,15 @@ export const PoseAnalysis = () => {
     rightEye: any;
   }>({ leftShoulder: null, rightShoulder: null, leftEye: null, rightEye: null });
 
+  // thresholds
+  const [thresholds, setThresholds] = useState<Thresholds>(initialThresholds);
+  const thresholdsRef = useRef(thresholds);
+
+  useEffect(() => {
+    console.log(thresholds);
+    thresholdsRef.current = thresholds;
+  }, [thresholds]);
+
   // landmarks
   const landmarks = useRef<any>(null);
   const [landmarksVisible, setLandmarksVisible] = useState(true);
@@ -118,6 +133,7 @@ export const PoseAnalysis = () => {
     results: any,
     postureViewRef: any,
     correctionRef: any,
+    thresholdsRef: any,
     canvasCtx: CanvasRenderingContext2D,
     canvasElement: any,
     fpsControl: any
@@ -128,11 +144,20 @@ export const PoseAnalysis = () => {
 
     if (correctionRef.current.startAnalysis) {
       if (postureViewRef.current === PostureView.LATERAL) {
-        if (!checkLateralPosture(goodFrames, badFrames, results, setIsLateralPosCorrect, setLandmarksVisible)) {
+        if (
+          !checkLateralPosture(
+            goodFrames,
+            badFrames,
+            results,
+            thresholdsRef,
+            setIsLateralPosCorrect,
+            setLandmarksVisible
+          )
+        ) {
           // handleBadPosture();
         }
       } else {
-        if (!checkAnteriorPosture(results, calibPositions, setAnteriorPosition, setLandmarksVisible)) {
+        if (!checkAnteriorPosture(results, calibPositions, thresholdsRef, setAnteriorPosition, setLandmarksVisible)) {
           if (canNotifyPosture(lastNotificationTime, notificationValues)) {
             sendNotification(NotificationMessage.POSTURE_ALERT);
           }
@@ -150,7 +175,15 @@ export const PoseAnalysis = () => {
         const pose = new Pose(poseConfig);
         pose.onResults((results) => {
           setLoading(false);
-          onResults(results, postureViewRef, correctionRef, canvasCtx, canvasElement.current, fpsControl);
+          onResults(
+            results,
+            postureViewRef,
+            correctionRef,
+            thresholdsRef,
+            canvasCtx,
+            canvasElement.current,
+            fpsControl
+          );
         });
 
         // Present a control panel through which the user can manipulate the solution options.
@@ -287,6 +320,8 @@ export const PoseAnalysis = () => {
           setStartCorrection={setStartAnalysis}
           calibPositions={calibPositions}
           landmarks={landmarks}
+          thresholds={thresholds}
+          setThresholds={setThresholds}
         ></PostureViewManager>
       </div>
       <div className="card-bottom">

@@ -89,3 +89,24 @@ body.active-modal {
   font-size: 1rem;
   font-weight: 500;
 }
+
+.modal-button {
+  background-color: #309f93;
+  color: #8cdd9a;
+  font-family: "Google Sans", "Titillium Web", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #8cdd9a;
+  align-self: flex-end;
+  font-family: Arial, sans-serif; /* Adjust according to your preference */
+  padding: 0.3em;
+  border-radius: 5px;
+  width: 100%;
+
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* optional */
+}
+
+.modal-button:hover {
+  background-color: white;
+  color: black;
+}

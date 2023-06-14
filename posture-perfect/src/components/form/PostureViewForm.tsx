@@ -1,7 +1,10 @@
-import { DropdownPosteriorView } from "./dropdowns/DropdownPosteriorView";
-import { PostureView } from "../../utils/posture-utils";
+import { DropdownPosteriorView } from "./form-fields/DropdownPosteriorView";
+import { Thresholds as Thresholds, PostureView } from "../../utils/posture-utils";
 import { Dispatch, SetStateAction } from "react";
 import { Modal } from "../modal/Modal";
+import "./form.css";
+import { PostureViewTitleLabel } from "./labels/Label";
+import { PostureViewMiniForm } from "./PostureViewMiniForm";
 
 interface PostureViewFormProps {
   postureView: PostureView;
@@ -11,6 +14,8 @@ interface PostureViewFormProps {
   startPostureCorrection: () => void;
   stopPostureCorrection: () => void;
   disableStart: boolean;
+  thresholds: Thresholds;
+  setThresholds: Dispatch<SetStateAction<Thresholds>>;
 }
 
 /**
@@ -26,6 +31,8 @@ export const PostureViewForm = ({
   startPostureCorrection,
   stopPostureCorrection,
   disableStart,
+  thresholds,
+  setThresholds,
 }: PostureViewFormProps) => {
   const handleClick = () => {
     if (startCorrection) {
@@ -36,18 +43,29 @@ export const PostureViewForm = ({
   };
 
   return (
-    <div className="form-content">
-      <div className="card-title-top">Posture View</div>
-      <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
-      {postureView === PostureView.ANTERIOR && (
-        <button onClick={calibratePosture} disabled={startCorrection}>
-          Calibrate Posture
+    <div className="form-content space-between">
+      <PostureViewTitleLabel></PostureViewTitleLabel>
+      <div className="mini-form-content">
+        <DropdownPosteriorView postureView={postureView} setPostureView={setPostureView}></DropdownPosteriorView>
+        <PostureViewMiniForm
+          postureView={postureView}
+          thresholds={thresholds}
+          setThresholds={setThresholds}
+          startCorrection={startCorrection}
+        ></PostureViewMiniForm>
+        {postureView === PostureView.ANTERIOR && (
+          <button onClick={calibratePosture} disabled={startCorrection} className="posture-view-button">
+            Calibrate Posture
+          </button>
+        )}
+      </div>
+
+      <div className="posture-view-last-row">
+        <button onClick={handleClick} disabled={disableStart} className="posture-view-button">
+          {startCorrection ? "Stop posture correction" : "Start posture correction"}
         </button>
-      )}
-      <button onClick={handleClick} disabled={disableStart}>
-        {startCorrection ? "Stop posture correction" : "Start posture correction"}
-      </button>
-      <Modal></Modal>
+        <Modal></Modal>
+      </div>
     </div>
   );
 };

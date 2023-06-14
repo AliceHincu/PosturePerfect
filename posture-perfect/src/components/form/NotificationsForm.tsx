@@ -1,9 +1,9 @@
 import { Formik, Form } from "formik";
 import { AlertLabel, BreakTimeLabel, WaterLabel } from "./labels/Labels";
-import { TimeField } from "./dropdowns/TimeField";
-import { createTimeFieldValidationSchema } from "./dropdowns/TimeField";
-import "./NotificationsForm.css";
-import { TitleNotifications } from "./labels/Label";
+import { TimeField } from "./form-fields/TimeField";
+import { createTimeFieldValidationSchema } from "./form-fields/TimeField";
+import "./form.css";
+import { NotificationTitleLabel } from "./labels/Label";
 import { NotificationValues, initialNotificationValues } from "../../utils/notifications-utils";
 
 interface NotificationsFormProps {
@@ -25,9 +25,8 @@ export const NotificationsForm = ({ handleFormSubmit }: NotificationsFormProps) 
       onSubmit={(values) => handleFormSubmit(values)}
     >
       <Form>
+        <NotificationTitleLabel></NotificationTitleLabel>
         <div className="form-content">
-          <TitleNotifications></TitleNotifications>
-
           <AlertLabel></AlertLabel>
           <TimeField
             timeValueName="timeValuePosture"

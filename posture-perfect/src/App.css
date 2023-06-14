@@ -67,22 +67,38 @@ body {
   z-index: 2;
 }
 
-.card-top {
+.card-top,
+.card-bottom {
   position: absolute;
   right: 3%;
-  top: 3%;
-  width: 20%;
-  min-width: 250px;
-  height: 23%;
+  width: 250px;
   box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
   border-radius: 8%;
   color: #fff;
-  z-index: 3;
   background-color: #222;
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* aligns items to the top */
   padding: 2%;
+}
+
+.card-top {
+  top: 2%;
+  height: 30%;
+  min-height: 250px; /* minimum height can be adjusted based on requirements */
+  max-height: 305px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-bottom {
+  bottom: 2%;
+  height: 40%;
+  min-height: 330px; /* minimum height can be adjusted based on requirements */
+  max-height: 385px;
+  z-index: 2;
 }
 
 .card-title {
@@ -95,27 +111,9 @@ body {
   display: flex;
   justify-content: center;
   width: 100%; /* fills the width of the container */
-  font-size: 1.5em;
+  font-size: 1.3em;
   font-weight: bold;
-}
-
-.card-bottom {
-  position: absolute;
-  right: 3%;
-  bottom: 3%;
-  width: 20%;
-  min-width: 250px; /* minimum width can be adjusted based on requirements */
-  height: 47%;
-  min-height: 350px; /* minimum height can be adjusted based on requirements */
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
-  border-radius: 8%;
-  color: #fff;
-  z-index: 2;
-  background-color: #222;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* aligns items to the top */
-  padding: 2%;
+  padding: 0.25rem;
 }
 
 /* Responsive design for smaller screens - todo*/

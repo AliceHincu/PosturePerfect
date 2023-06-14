@@ -44,7 +44,7 @@ export const TimeField = ({ timeValueName, timeUnitName, checkboxName }: TimeFie
 
 /**
  * Validations for time field input.
- * - seconds = [5, 59]
+ * - seconds = [15, 59]
  * - minuted = [1, 59]
  * - hours = [1, 2]
  * @param timeValueName

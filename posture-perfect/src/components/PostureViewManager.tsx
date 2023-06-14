@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { PostureView, doLandmarksExist } from "../utils/posture-utils";
+import { Thresholds, PostureView, doLandmarksExist } from "../utils/posture-utils";
 import { PostureViewForm } from "./form/PostureViewForm";
 import { POSE_INDEXES_ANTERIOR } from "../utils/canvas-utils";
 import { POSE_LANDMARKS } from "@mediapipe/pose";
@@ -12,10 +12,21 @@ interface PostureCorrectionProps {
   setStartCorrection: Dispatch<SetStateAction<boolean>>;
   calibPositions: any;
   landmarks: any;
+  thresholds: Thresholds;
+  setThresholds: Dispatch<SetStateAction<Thresholds>>;
 }
 
 export const PostureViewManager = (props: PostureCorrectionProps) => {
-  const { postureView, setPostureView, startCorrection, setStartCorrection, calibPositions, landmarks } = props;
+  const {
+    postureView,
+    setPostureView,
+    startCorrection,
+    setStartCorrection,
+    calibPositions,
+    landmarks,
+    thresholds,
+    setThresholds,
+  } = props;
 
   const [isCalibrationGood, setIsCalibrationGood] = useState(postureView === PostureView.ANTERIOR ? false : true);
   useEffect(() => {
@@ -94,6 +105,8 @@ export const PostureViewManager = (props: PostureCorrectionProps) => {
         startPostureCorrection={startPostureCorrection}
         stopPostureCorrection={stopPostureCorrection}
         disableStart={!isCalibrationGood}
+        thresholds={thresholds}
+        setThresholds={setThresholds}
       ></PostureViewForm>
     </>
   );
