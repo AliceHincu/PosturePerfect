@@ -10,7 +10,7 @@ a {
 body {
   bottom: 0;
   font-family: "Titillium Web", sans-serif;
-  color: white;
+  color: black;
   left: 0;
   margin: 0;
   position: absolute;
@@ -22,7 +22,7 @@ body {
 
 .container {
   position: absolute;
-  background-color: #596e73;
+  background-color: #1f2128;
   width: 100%;
   max-height: 100%;
 }
@@ -67,40 +67,6 @@ body {
   z-index: 2;
 }
 
-.card-top,
-.card-bottom {
-  position: absolute;
-  right: 3%;
-  width: 250px;
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
-  border-radius: 8%;
-  color: #fff;
-  background-color: #222;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* aligns items to the top */
-  padding: 2%;
-}
-
-.card-top {
-  top: 2%;
-  height: 30%;
-  min-height: 250px; /* minimum height can be adjusted based on requirements */
-  max-height: 305px;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.card-bottom {
-  bottom: 2%;
-  height: 40%;
-  min-height: 330px; /* minimum height can be adjusted based on requirements */
-  max-height: 385px;
-  z-index: 2;
-}
-
 .card-title {
   display: flex;
   justify-content: center;
@@ -110,26 +76,41 @@ body {
 .card-title-top {
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%; /* fills the width of the container */
-  font-size: 1.3em;
-  font-weight: bold;
-  padding: 0.25rem;
+  font-size: 1.5em;
 }
 
-/* Responsive design for smaller screens - todo*/
-/* @media (max-width: 600px) {
-  .card-bottom {
-    width: 90%;
-    height: 80%;
-    right: 5%;
-    bottom: 10%;
-  }
-} */
+.button-tooltip-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* fills the width of the container */
+}
+
+.scrollable-text-tooltip {
+  max-height: 4.5em; /* Assuming 1.5em line-height */
+  overflow-y: auto; /* Show scrollbar if needed */
+  line-height: 1.5em;
+}
 
 .toast-custom-error {
   background-color: #d32f50 !important; /* Set your desired color */
+  z-index: 1000;
 }
 
 .toast-custom-info {
   background-color: #0075ff !important; /* Set your desired color */
+  z-index: 1000;
+}
+
+.posture-processing-container {
+  background-color: #1f2128;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10%;
+  height: 100vh;
+  box-sizing: border-box;
+  position: relative;
 }

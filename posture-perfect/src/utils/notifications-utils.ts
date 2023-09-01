@@ -42,8 +42,16 @@ const NotificationIcons: Record<NotificationMessage, string> = {
  * Construct and send the notification
  * @param {NotificationMessage} message break/water/posture alert
  */
-export const notify = (message: NotificationMessage) => {
-  let icon = NotificationIcons[message];
+export const notify = (message: NotificationMessage | string) => {
+  let key: string;
+
+  if (typeof message === "string") {
+    key = NotificationMessage.POSTURE_ALERT;
+  } else {
+    key = message;
+  }
+
+  let icon = NotificationIcons[key as NotificationMessage];
   const options = icon ? { icon } : {};
   new Notification(message, options);
 };

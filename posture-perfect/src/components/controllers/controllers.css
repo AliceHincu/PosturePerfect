@@ -1,0 +1,178 @@
+.button-posture-analysis {
+  padding: 0.5em;
+  border-radius: 5px;
+  width: 100%;
+  background-color: #6c5dd3;
+  border: none;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2); /* optional shadow for depth */
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, transform 0.2s ease-in-out; /* added transform for a "pressed" effect */
+}
+
+.button-posture-analysis:hover {
+  background-color: #9b8df2; /* a slightly darker shade of orange */
+  color: white;
+}
+
+.button-posture-analysis:disabled {
+  background-color: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-posture-analysis:active {
+  transform: scale(0.97); /* gives a "pressed" effect */
+}
+
+.card-left {
+  position: absolute;
+  left: 3%;
+  width: 350px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
+  border-radius: 30px;
+  color: #fff;
+  background-color: #333742;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* aligns items to the top */
+  padding: 2%;
+  z-index: 3;
+  gap: 0.75rem;
+}
+
+.card-under-video {
+  z-index: 3;
+  position: absolute;
+  bottom: 3%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  color: white;
+}
+
+.error-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: grey; /* Initially grey, you can change it based on conditions */
+}
+
+.error-circle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-circle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-top,
+.card-bottom {
+  /* top: 10%; */
+  position: absolute;
+  right: 3%;
+  width: 350px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6274509804);
+  border-radius: 8%;
+  color: #fff;
+  background-color: #333742;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* aligns items to the top */
+  padding: 1.5rem;
+  z-index: 3;
+}
+
+.card-top {
+  top: 1%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-bottom {
+  bottom: 1%;
+}
+
+.select-posture-analysis {
+  color: #d5d5d6;
+  background-color: #596071;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+h1 {
+  align-self: center;
+  font-size: 24px;
+}
+
+.scrollable-text {
+  max-height: 5.3rem; /* Adjust this value to your preferred height */
+  overflow-y: auto; /* This enables vertical scrolling */
+  font-size: 14px;
+}
+
+.scrollable-text::-webkit-scrollbar {
+  width: 5px; /* Adjust to make the scrollbar thinner or thicker */
+}
+
+.scrollable-text::-webkit-scrollbar-track {
+  background: transparent; /* This makes the track invisible */
+}
+
+.scrollable-text::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the draggable scrolling handle */
+  border-radius: 2px; /* Roundness of the draggable scroll handle */
+}
+
+.scrollable-text::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color of the draggable handle on hover */
+}
+
+.scrollable-text {
+  scrollbar-width: thin; /* Make the scrollbar thinner */
+  scrollbar-color: #888 transparent; /* Color of the thumb and track */
+}
+.scrollable-text {
+  scrollbar-width: thin; /* Make the scrollbar thinner */
+  scrollbar-color: #888 transparent; /* Color of the thumb and track */
+}
+
+.switch-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-label {
+  font-size: 16px;
+}
+
+.react-switch-bg {
+  position: relative;
+}
+
+.react-switch-bg span {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: right 0.2s;
+  font-size: 12px;
+}
+
+.react-switch:checked + .react-switch-bg span {
+  right: 75%;
+}
+
+.react-switch:not(:checked) + .react-switch-bg span {
+  right: 10%;
+}

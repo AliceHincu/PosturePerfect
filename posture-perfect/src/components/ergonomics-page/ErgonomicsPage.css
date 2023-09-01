@@ -1,0 +1,36 @@
+.ergonomics-container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #f4f4f4;
+  padding: 20px;
+}
+
+.ergonomics-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.big-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 16px;
+}
+
+.big-list > li > span {
+  font-weight: bold;
+}
+
+.small-list {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

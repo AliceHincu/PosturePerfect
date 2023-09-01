@@ -8,8 +8,9 @@
   padding-bottom: 2px;
   padding-left: 3px;
   padding-right: 3px;
-  color: rgb(55 65 81);
+  /* color: rgb(55 65 81); */
   line-height: 1.25;
+  border-color: #596071;
 }
 
 /* If you don't want outline when you click on field */
@@ -29,12 +30,12 @@
   justify-content: space-between;
 }
 
-.error-outline {
+.error-outline-time-field {
   border-width: 2px;
   border-color: rgb(248 113 113);
 }
 
-.error-text {
+.error-text-time-field {
   color: rgb(239 68 68);
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */

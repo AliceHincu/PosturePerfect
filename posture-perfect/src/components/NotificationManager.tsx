@@ -87,7 +87,7 @@ export const canNotifyPosture = (
  * Send a notification to the user depending on the permissions
  * @param {NotificationMessage} message break/water/posture alert
  */
-export const sendNotification = (message: NotificationMessage) => {
+export const sendNotification = (message: NotificationMessage | string) => {
   // Check if the browser supports notifications
   if (!("Notification" in window)) {
     console.log("This browser does not support system notifications");

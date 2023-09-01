@@ -18,6 +18,7 @@ interface ToastManagerProps {
 export const ToastManager: React.FC<ToastManagerProps> = ({ postureView, isLateralPosCorrect, landmarksVisible }) => {
   const lateralPosToastId = useRef<Id | null>(null);
   const landmarksVisToastId = useRef<Id | null>(null);
+  const anteriorCameraToastId = useRef<Id | null>(null);
 
   const removeToast = (toastId: any) => {
     toast.dismiss(toastId);
@@ -47,5 +48,8 @@ export const ToastManager: React.FC<ToastManagerProps> = ({ postureView, isLater
       handleToastDisplay(landmarksVisible, landmarksVisToastId, ToastMessages.LANDMARKS_NOT_VISIBLE, ToastType.Error);
   }, [landmarksVisible]);
 
+  // useEffect(() => {
+  //   handleToastDisplay();
+  // });
   return <Toast />;
 };

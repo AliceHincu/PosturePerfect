@@ -21,23 +21,31 @@ interface TimeFieldProps {
  */
 export const TimeField = ({ timeValueName, timeUnitName, checkboxName }: TimeFieldProps) => {
   const { errors, values } = useFormikContext<NotificationValues>();
-  const cssClassName = "time-field " + (errors[timeValueName as keyof typeof errors] ? "error-outline" : "");
+  const cssClassName = "time-field " + (errors[timeValueName as keyof typeof errors] ? "error-outline-time-field" : "");
 
   return (
     <div className="form-col">
       <div className="form-row">
-        <Field name={timeValueName} type="number" className={cssClassName} disabled={!values[checkboxName]} />
-        <Field as="select" name={timeUnitName} className="time-field pointer" disabled={!values[checkboxName]}>
-          <option value={HOUR_TO_SECONDS}>hours</option>
-          <option value={MINUTE_TO_SECONDS}>minutes</option>
-          <option value={SECOND}>seconds</option>
-        </Field>
+        <div>
+          <Field
+            name={timeValueName}
+            type="number"
+            className={cssClassName}
+            disabled={!values[checkboxName]}
+            style={{ color: "black" }}
+          />
+          <Field as="select" name={timeUnitName} className="select-posture-analysis" disabled={!values[checkboxName]}>
+            <option value={HOUR_TO_SECONDS}>hours</option>
+            <option value={MINUTE_TO_SECONDS}>minutes</option>
+            <option value={SECOND}>seconds</option>
+          </Field>
+        </div>
         <div className="notify-wrapper">
           <Field name={checkboxName} type="checkbox" className="pointer"></Field>
           <span>Notify</span>
         </div>
       </div>
-      <ErrorMessage name={timeValueName} component="div" className="error-text" />
+      <ErrorMessage name={timeValueName} component="div" className="error-text-time-field" />
     </div>
   );
 };

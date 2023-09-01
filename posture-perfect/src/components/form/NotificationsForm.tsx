@@ -24,7 +24,7 @@ export const NotificationsForm = ({ handleFormSubmit }: NotificationsFormProps) 
         .concat(createTimeFieldValidationSchema("timeValueWater", "timeUnitWater"))}
       onSubmit={(values) => handleFormSubmit(values)}
     >
-      <Form>
+      <Form className="formik-css">
         <NotificationTitleLabel></NotificationTitleLabel>
         <div className="form-content">
           <AlertLabel></AlertLabel>
@@ -49,7 +49,9 @@ export const NotificationsForm = ({ handleFormSubmit }: NotificationsFormProps) 
           ></TimeField>
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" className="button-posture-analysis">
+          Submit
+        </button>
       </Form>
     </Formik>
   );
