@@ -75,7 +75,7 @@ export const useWebSocket = (
 
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io("http://localhost:8080");
+      socket.current = io(process.env.REACT_APP_SERVER_URL as string);
 
       socket.current.on("connect", () => {
         console.log("connected to server");
