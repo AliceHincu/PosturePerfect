@@ -46,6 +46,7 @@ function App() {
           <Route path="*" element={<NoMatch />} />
         </Routes>
       </AuthProvider>
+      {/* <PostureProcessing></PostureProcessing> */}
     </div>
   );
 }

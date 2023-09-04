@@ -21,7 +21,6 @@ type MenuOptions = {
 export const NavBar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const { token, onLogout } = useAuth();
-  console.log(token);
   const menuOptions: MenuOptions[] = token
     ? [
         {

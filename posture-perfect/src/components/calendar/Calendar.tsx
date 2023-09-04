@@ -128,7 +128,6 @@ const Calendar = () => {
       for (const day of daysOfMonth) {
         const dayStr = format(day, "yyyy-MM-dd");
         const dayScores = await getPostureScoresByTokenAndDate(token as string, dayStr);
-        console.log(dayStr, dayScores);
         if (dayScores.length > 0) {
           newDayStyles[dayStr] = { backgroundColor: getBackgroundColor(calculateDailyWeightedScore(dayScores)) };
         }

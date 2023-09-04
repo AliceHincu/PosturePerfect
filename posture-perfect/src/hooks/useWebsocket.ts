@@ -41,7 +41,6 @@ export const useWebSocket = (
 
   const setThresholdStrictness = (strictness: ThresholdStrictness) => {
     if (socket.current) {
-      console.log(strictness);
       socket.current.emit("setThresholdStrictness", strictness);
     }
   };
@@ -75,9 +74,7 @@ export const useWebSocket = (
   };
 
   useEffect(() => {
-    console.log("hi");
     if (!socket.current) {
-      console.log("hiiiiii");
       socket.current = io("http://localhost:8080");
 
       socket.current.on("connect", () => {

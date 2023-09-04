@@ -1,7 +1,6 @@
 import { useAuth } from "../context/authContext";
 
 export const Profile = () => {
-  console.log("HI!");
   const { token } = useAuth();
 
   return (
