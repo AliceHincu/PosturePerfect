@@ -23,8 +23,8 @@ const PostureScoreDetail = ({ postureScore }: PostureScoreDetailProps) => {
       <div className="flex-auto">
         <p className="text-gray-900">{postureScore.score}</p>
         <p className="mt-0.5">
-          <time dateTime={postureScore.startTime}>{format(startDateTime, "h:mm a")}</time> -{" "}
-          <time dateTime={postureScore.endTime}>{format(endDateTime, "h:mm a")}</time>
+          <time dateTime={postureScore.startTime}>{format(startDateTime, "h:mm:ss a")}</time> -{" "}
+          <time dateTime={postureScore.endTime}>{format(endDateTime, "h:mm:ss a")}</time>
         </p>
       </div>
     </li>

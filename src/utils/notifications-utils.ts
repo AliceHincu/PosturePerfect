@@ -44,11 +44,13 @@ const NotificationIcons: Record<NotificationMessage, string> = {
  */
 export const notify = (message: NotificationMessage | string) => {
   let key: string;
+  console.log("Typeof message: ", typeof message);
 
-  if (typeof message === "string") {
-    key = NotificationMessage.POSTURE_ALERT;
+  // Check if message is one of the enum values
+  if (Object.values(NotificationMessage).includes(message as NotificationMessage)) {
+    key = message as NotificationMessage;
   } else {
-    key = message;
+    key = NotificationMessage.POSTURE_ALERT;
   }
 
   let icon = NotificationIcons[key as NotificationMessage];

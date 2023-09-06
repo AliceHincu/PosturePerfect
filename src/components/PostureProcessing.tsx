@@ -36,10 +36,17 @@ export const PostureProcessing = () => {
   // notifications
   const lastNotificationTime = useRef<Date | null>(null);
   const [notificationValues, setNotificationValues] = useState<NotificationValues>(initialNotificationValues);
+  const notificationValuesRef = useRef<NotificationValues>(notificationValues);
+
+  useEffect(() => {
+    notificationValuesRef.current = notificationValues;
+  }, [notificationValues.checkboxPosture]);
 
   const triggerPostureAlert = (message: string) => {
-    if (canNotifyPosture(lastNotificationTime, notificationValues)) {
-      sendNotification(message);
+    if (canNotifyPosture(lastNotificationTime, notificationValuesRef.current)) {
+      if (notificationValuesRef.current.checkboxPosture) {
+        sendNotification(message);
+      }
     }
   };
 

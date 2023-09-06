@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { Spinner } from "../ui/Spinner";
 import { OptionMap } from "@mediapipe/control_utils";
 
@@ -20,6 +20,7 @@ export const VideoPlayer = ({
   isFrozen,
   setVideoLoading,
 }: VideoPlayerProps) => {
+  const mediaStreamRef = useRef<MediaStream | null>(null); // <-- Declare a new useRef
   useEffect(() => {
     const getMedia = async () => {
       setVideoLoading(true);
@@ -35,6 +36,7 @@ export const VideoPlayer = ({
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        mediaStreamRef.current = stream; // <-- Save the MediaStream
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           onUserMedia();
@@ -48,8 +50,9 @@ export const VideoPlayer = ({
     getMedia();
 
     return () => {
-      if (videoRef.current) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      if (mediaStreamRef.current) {
+        // <-- Use the saved MediaStream
+        const tracks = mediaStreamRef.current.getTracks();
         tracks.forEach((track) => track.stop());
       }
     };

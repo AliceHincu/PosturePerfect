@@ -1,4 +1,4 @@
-import { differenceInMinutes, format, parseISO } from "date-fns";
+import { differenceInMinutes, differenceInSeconds, format, parseISO } from "date-fns";
 import { PostureScore } from "../Calendar";
 
 // interface DailyScoreData {
@@ -17,10 +17,11 @@ export const calculateDailyWeightedScore = (dailyScores: PostureScore[]) => {
   let totalDuration = 0;
 
   dailyScores.forEach((session: PostureScore) => {
-    const sessionDuration = differenceInMinutes(parseISO(session.endTime), parseISO(session.startTime));
-    totalWeightedScore += session.score * sessionDuration;
-    totalDuration += sessionDuration;
+    const sessionDurationInSeconds = differenceInSeconds(parseISO(session.endTime), parseISO(session.startTime));
+
+    totalWeightedScore += session.score * sessionDurationInSeconds;
+    totalDuration += sessionDurationInSeconds;
   });
 
-  return totalWeightedScore / totalDuration;
+  return totalDuration > 0 ? totalWeightedScore / totalDuration : 0;
 };

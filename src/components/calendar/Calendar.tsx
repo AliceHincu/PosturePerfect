@@ -63,16 +63,24 @@ const Calendar = () => {
     fetchInitialData();
   }, []); // Empty dependency array to fetch data only once when component mounts
 
+  // useEffect(() => {
+  //   const fetchScoresByDate = async () => {
+  //     const date = format(selectedDay, "yyyy-MM-dd");
+  //     const fetchedData = await getPostureScoresByTokenAndDate(token as string, date);
+  //     if (fetchedData) {
+  //       setDailyScores(fetchedData);
+  //     }
+  //   };
+  //   fetchScoresByDate();
+  // }, [selectedDay]);
+  // Filter scores for the selected day from postureScores
   useEffect(() => {
-    const fetchScoresByDate = async () => {
-      const date = format(selectedDay, "yyyy-MM-dd");
-      const fetchedData = await getPostureScoresByTokenAndDate(token as string, date);
-      if (fetchedData) {
-        setDailyScores(fetchedData);
-      }
-    };
-    fetchScoresByDate();
-  }, [selectedDay]);
+    const filteredScores = postureScores.filter((score) => {
+      const scoreDate = parseISO(score.startTime);
+      return isSameDay(scoreDate, selectedDay);
+    });
+    setDailyScores(filteredScores);
+  }, [selectedDay, postureScores]);
 
   const setMonth = (difference: number) => {
     let newMonth = add(firstDayCurrentMonth, { months: difference });
@@ -121,22 +129,37 @@ const Calendar = () => {
 
   const [dayStyles, setDayStyles] = useState<Record<string, React.CSSProperties>>({});
 
-  useEffect(() => {
-    // Run your async function to update the dayStyles state
-    const fetchDayStyles = async () => {
-      const newDayStyles: Record<string, React.CSSProperties> = {};
-      for (const day of daysOfMonth) {
-        const dayStr = format(day, "yyyy-MM-dd");
-        const dayScores = await getPostureScoresByTokenAndDate(token as string, dayStr);
-        if (dayScores.length > 0) {
-          newDayStyles[dayStr] = { backgroundColor: getBackgroundColor(calculateDailyWeightedScore(dayScores)) };
-        }
-      }
-      setDayStyles(newDayStyles);
-    };
+  // useEffect(() => {
+  //   // Run your async function to update the dayStyles state
+  //   const fetchDayStyles = async () => {
+  //     const newDayStyles: Record<string, React.CSSProperties> = {};
+  //     for (const day of daysOfMonth) {
+  //       const dayStr = format(day, "yyyy-MM-dd");
+  //       const dayScores = await getPostureScoresByTokenAndDate(token as string, dayStr);
+  //       if (dayScores.length > 0) {
+  //         newDayStyles[dayStr] = { backgroundColor: getBackgroundColor(calculateDailyWeightedScore(dayScores)) };
+  //       }
+  //     }
+  //     setDayStyles(newDayStyles);
+  //   };
 
-    fetchDayStyles();
-  }, [daysOfMonth]);
+  //   fetchDayStyles();
+  // }, [daysOfMonth]);
+  // Filter and process scores to determine the style for each day of the current month
+  useEffect(() => {
+    const newDayStyles: Record<string, React.CSSProperties> = {};
+    for (const day of daysOfMonth) {
+      const dayStr = format(day, "yyyy-MM-dd");
+      const dayScores = postureScores.filter((score) => {
+        const scoreDate = parseISO(score.startTime);
+        return isSameDay(scoreDate, day);
+      });
+      if (dayScores.length > 0) {
+        newDayStyles[dayStr] = { backgroundColor: getBackgroundColor(calculateDailyWeightedScore(dayScores)) };
+      }
+    }
+    setDayStyles(newDayStyles);
+  }, [daysOfMonth, postureScores]);
 
   return (
     <div className="pt-16">
